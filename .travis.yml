@@ -1,0 +1,16 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# Modified from original by Naupaka Zimmerman nzimmerman@usfca.edu
+
+language: r
+r: bioc-devel
+sudo: required
+dist: bionic
+cache: packages
+env:
+  - LINTR_COMMENT_BOT=false
+r_github_packages:
+  - jimhester/lintr
+  - leffj/mctoolsr
+script:
+  - for file in $(find . -type f -name "*.sh"); do shellcheck $file; done;
+  - R -f tests/render_rmds.R

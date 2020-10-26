@@ -1,0 +1,22 @@
+---
+title: 'Your Title Here'
+author: "Don Francisco"
+date: "October 25, 2020"
+output: pdf_document
+csl: bioinformatics.csl
+bibliography: references.bib
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = TRUE, error = TRUE)
+```
+
+# Project Summary
+
+# Methods
+
+# Findings
+
+## Subsections are ok too
+
+# Sources Cited
