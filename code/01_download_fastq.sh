@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-# script takes a single argument, which should be an SRA run table file
+OUTPUT_DIR="/data/sars_vcf_analysis/01_raw_fastq"
 
+# script takes a single argument, which should be an SRA run table file
 if [ $# -ne 1 ]
 then
     echo "Please supply a single argument, which should be the path to an SRA runtable file"
@@ -15,6 +16,9 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
-    fasterq-dump --split-files -L 6 --outdir /data/sars_vcf_analysis/01_raw_fastq "$run_id"
+    fasterq-dump --split-files -L 6 --outdir "$OUTPUT_DIR" "$run_id"
 done
 
+# Remove all reverse reads for speed purposes
+echo "Removing all reverse reads to make things run faster"
+rm -vf ${OUTPUT_DIR}/*_2.fastq
