@@ -12,4 +12,5 @@ mkdir -p /data/08_bcf_variants
 mkdir -p /data/09_vcf_called
 
 # note this is in repo not in root /data
-mkdir -p data/vcf_output_for_R
+mkdir -p data/00_sra_runtable
+mkdir -p data/10_vcf_output_for_R
