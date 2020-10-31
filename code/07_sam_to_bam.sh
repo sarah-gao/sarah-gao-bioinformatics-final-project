@@ -2,4 +2,18 @@
 
 set -euo pipefail
 
-samtools view -S -b output.sam > output.bam
+OUTPUT_DIR="/data/sars_vcf_analysis/06_mapped_bam/"
+
+if [ $# -eq 0 ]
+then
+    echo "This script will convert the sam files it is given to bam."
+    echo "Please supply a set of sam files as arguments."
+    exit 1
+fi
+
+# run trimmomatic to throw out bad sequences, trim when quality gets low
+for sam_file in "$@"
+do
+    samtools view -S -b "$sam_file" > "${OUTPUT_DIR}$(basename -s .sam "$sam_file").bam"
+done
+
