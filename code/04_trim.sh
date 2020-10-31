@@ -15,5 +15,5 @@ fi
 # run trimmomatic to throw out bad sequences, trim when quality gets low
 for seq_file in "$@"
 do
-    echo TrimmomaticSE -threads 4 -phred33 "$seq_file" "${OUTPUT_DIR}$(basename -s .fastq "$seq_file").trim.fastq" "$TRIM_PARAMS" 
+    TrimmomaticSE -threads 4 -phred33 "$seq_file" "${OUTPUT_DIR}$(basename -s .fastq "$seq_file").trim.fastq" "$TRIM_PARAMS" 
 done
