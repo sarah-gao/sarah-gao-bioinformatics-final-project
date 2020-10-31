@@ -11,7 +11,6 @@ then
     exit 1
 fi
 
-# run trimmomatic to throw out bad sequences, trim when quality gets low
 for bam_file in "$@"
 do
     echo "Sorting ${bam_file}..."

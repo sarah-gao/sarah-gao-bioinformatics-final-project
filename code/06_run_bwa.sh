@@ -12,7 +12,6 @@ then
     exit 1
 fi
 
-# run trimmomatic to throw out bad sequences, trim when quality gets low
 for seq_file in "$@"
 do
     bwa mem "$REF_GENOME" "$seq_file" > "${OUTPUT_DIR}$(basename $seq_file).bwa-output.sam"
