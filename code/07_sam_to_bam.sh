@@ -14,6 +14,6 @@ fi
 # run trimmomatic to throw out bad sequences, trim when quality gets low
 for sam_file in "$@"
 do
-    samtools view -S -b "$sam_file" > "${OUTPUT_DIR}$(basename -s .sam "$sam_file").bam"
+    samtools view -S -b --verbosity 2 "$sam_file" > "${OUTPUT_DIR}$(basename -s .sam "$sam_file").bam"
 done
 
