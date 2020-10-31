@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+mkdir -p /data/sars_vcf_analysis/00_fasterq_temp
 mkdir -p /data/sars_vcf_analysis/01_raw_fastq
 mkdir -p /data/sars_vcf_analysis/02_genome_reference
 mkdir -p /data/sars_vcf_analysis/03_fastqc_output

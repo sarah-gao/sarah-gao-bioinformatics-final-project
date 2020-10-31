@@ -3,6 +3,7 @@
 set -euo pipefail
 
 OUTPUT_DIR="/data/sars_vcf_analysis/01_raw_fastq"
+TEMP_DIR="/data/sars_vcf_analysis/00_fasterq_temp"
 
 # script takes a single argument, which should be an SRA run table file
 if [ $# -ne 1 ]
@@ -16,7 +17,7 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
-    fasterq-dump --split-files -L 6 --outdir "$OUTPUT_DIR" "$run_id"
+    fasterq-dump --split-files -L 6 --temp "$TEMP_DIR" --outdir "$OUTPUT_DIR" "$run_id"
 done
 
 # Remove all reverse reads for speed purposes
