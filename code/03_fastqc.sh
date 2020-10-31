@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-OUTPUT_DIR="/data/sars_vcf_analysis/"
+OUTPUT_DIR="/data/sars_vcf_analysis/03_fastqc_output"
 
 if [ $# -eq 0 ]
 then
@@ -12,4 +12,4 @@ then
 fi
 
 # run fastqc on all fastq files given as command-line input
-fastqc -o /data/sars_vcf_analysis/03_fastqc_output -f fastq "$@"
+fastqc -o "$OUTPUT_DIR" -f fastq "$@"
