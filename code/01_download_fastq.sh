@@ -8,6 +8,7 @@ if [ $# -ne 1 ]
 then
     echo "Please supply a single argument, which should be the path to an SRA runtable file"
     echo "This script expect there to be a column header row and the run IDs to be in the first column"
+    exit 1
 fi
 
 # download fastq files for all SRA runs in runtable file, assuming first column
