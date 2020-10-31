@@ -3,7 +3,6 @@
 set -euo pipefail
 
 OUTPUT_DIR="/data/sars_vcf_analysis/04_trimmed_fastq/"
-TRIM_PARAMS="LEADING:5 TRAILING:5 SLIDINGWINDOW:8:25 MINLEN:200"
 
 if [ $# -eq 0 ]
 then
@@ -15,5 +14,5 @@ fi
 # run trimmomatic to throw out bad sequences, trim when quality gets low
 for seq_file in "$@"
 do
-    TrimmomaticSE -threads 4 -phred33 "$seq_file" "${OUTPUT_DIR}$(basename -s .fastq "$seq_file").trim.fastq" "$TRIM_PARAMS" 
+    TrimmomaticSE -threads 4 -phred33 "$seq_file" "${OUTPUT_DIR}$(basename -s .fastq "$seq_file").trim.fastq" LEADING:5 TRAILING:5 SLIDINGWINDOW:8:25 MINLEN:100 
 done
