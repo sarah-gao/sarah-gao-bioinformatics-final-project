@@ -14,6 +14,6 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
-    echo fasterq-dump --split-files -L 6 --outdir /data/01_raw_fastq "$run_id"
+    echo fasterq-dump --split-files -L 6 --outdir /data/sars_vcf_analysis/01_raw_fastq "$run_id"
 done
 
