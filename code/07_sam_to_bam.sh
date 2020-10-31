@@ -15,6 +15,6 @@ fi
 for sam_file in "$@"
 do
     echo "Converting $sam_file to bam..."
-    samtools view -S -b --verbosity 2 "$sam_file" > "${OUTPUT_DIR}$(basename -s .sam "$sam_file").bam"
+    samtools view -S -b "$sam_file" > "${OUTPUT_DIR}$(basename -s .sam "$sam_file").bam"
 done
 
