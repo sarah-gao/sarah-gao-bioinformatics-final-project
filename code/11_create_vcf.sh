@@ -2,4 +2,18 @@
 
 set -euo pipefail
 
-bcftools call --ploidy 1 -m -v -o output_variants.vcf output_raw.bcf
+OUTPUT_DIR="/data/sars_vcf_analysis/10_vcf_called/"
+
+if [ $# -eq 0 ]
+then
+    echo "This script will call variants on the bcf files it is given."
+    echo "Please supply a set of bcf files as arguments."
+    exit 1
+fi
+
+for bcf_file in "$@"
+do
+    # use -m for multiallelic caller (viral population) and -v to output only variants 
+    bcftools call --ploidy 1 -m -v -o "${OUTPUT_DIR}$(basename "$bcf_file").variants.vcf" "$bcf_file"
+done
+
