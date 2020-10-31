@@ -7,7 +7,7 @@ set -euo pipefail
 if [ $# -ne 1 ]
 then
     echo "Please supply a single argument, which should be the path to an SRA runtable file"
-    echo "This script expect there to be a column header row and the run IDs to be in the first column"
+    echo "This script expects there to be a column header row and the run IDs to be in the first column"
     exit 1
 fi
 
@@ -15,6 +15,6 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
-    echo fasterq-dump --split-files -L 6 --outdir /data/sars_vcf_analysis/01_raw_fastq "$run_id"
+    fasterq-dump --split-files -L 6 --outdir /data/sars_vcf_analysis/01_raw_fastq "$run_id"
 done
 
