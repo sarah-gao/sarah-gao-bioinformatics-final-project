@@ -2,9 +2,9 @@ DATA_ANALYSIS_DIR	:=	/data/sars_vcf_analysis
 FASTQ_DIR		:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
 FASTQ_FILES		:=	$(FASTQ_DIR)/$(wildcard *.fastq)
 GENOME_REF		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta
-GENOME_REF_IDX		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.idx
+GENOME_REF_IDX		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta.idx
 FASTQC_DIR		:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
-FASTQC_FILES		:=	$(FASTQC_DIR)/$(wildcard *)
+FASTQC_FILES		:=	$(FASTQC_DIR)/$(wildcard *.html)
 TRIMMED_DIR		:=	$(DATA_ANALYSIS_DIR)/04_trimmed_fastq
 TRIMMED_FILES		:=	$(TRIMMED_DIR)/$(wildcard *.trim.fastq)
 MAPPED_SAM_DIR		:=	$(DATA_ANALYSIS_DIR)/05_mapped_sam
@@ -34,7 +34,7 @@ $(VCF_FOR_R_FILES): code/12_filter_vcf.sh $(VCF_FILES)
 $(VCF_FILES): code/11_create_vcf.sh $(BCF_VAR_FILES)
 	bash code/11_create_vcf.sh $(BCF_VAR_DIR)/*.bcf
 
-$(BCF_VAR_FILES): code/10_bcftools_mpileup.sh $(MAP_SORTED_BAM_FILES) $(GENOME_REF_FASTA) $(GENOME_REF_INDEX)
+$(BCF_VAR_FILES): code/10_bcftools_mpileup.sh $(MAP_SORTED_BAM_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
 	bash code/10_bcftools_mpileup.sh $(MAP_SORTED_BAM_DIR)/*.bam
 
 $(FLAGSTATS_FILES): code/09_flagstat.sh $(MAP_SORTED_BAM_FILES)
@@ -46,7 +46,7 @@ $(MAP_SORTED_BAM_FILES): code/08_sort_bam.sh $(MAPPED_BAM_FILES)
 $(MAPPED_BAM_FILES): code/07_sam_to_bam.sh $(MAPPED_SAM_FILES)
 	bash code/07_sam_to_bam.sh $(MAPPED_SAM_DIR)/*.sam
 
-$(MAPPED_SAM_FILES): code/06_run_bwa.sh $(TRIMMED_FILES) $(GENOME_REF_FASTA) $(GENOME_REF_INDEX)
+$(MAPPED_SAM_FILES): code/06_run_bwa.sh $(TRIMMED_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
 	bash code/06_run_bwa.sh $(TRIMMED_DIR)/*.trim.fastq
 
 $(GENOME_REF_IDX): code/05_bwa_index.sh $(GENOME_REF)
@@ -68,7 +68,5 @@ $(FASTQ_FILES): code/00_setup_directories.sh code/01_download_fastq.sh $(SRA_RUN
 clean:
 	rm -vf $(VCF_FOR_R_DIR)/*.vcf
 	rm -vfr $(DATA_ANALYSIS_DIR)
-
-.SECONDARY: $(FASTQ_FILES) $(GENOME_REF_FASTA) $(FASTQC_FILES) $(TRIMMED_FILES) $(GENOME_REF_INDEX) $(MAPPED_SAM_FILES) $(MAPPED_BAM_FILES) $(MAP_SORTED_BAM_FILES) $(FLAGSTATS_FILES) $(BCF_VAR_FILES) $(VCF_FILES)
 
 .PHONY: all clean
