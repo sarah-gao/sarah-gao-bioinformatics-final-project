@@ -1,20 +1,20 @@
-$(DATA_ANALYSIS_DIR)	:=	/data/sars_vcf_analysis
-$(FASTERQ_TEMP)			:=	$(DATA_ANALYSIS_DIR)/00_fasterq_temp
-$(FASTQ_DIR)			:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
-$(GENOME_REF_DIR)		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference
-$(FASTQC_DIR)			:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
-$(TRIMMED_DIR)			:=	$(DATA_ANALYSIS_DIR)/04_trimmed_fastq
-$(MAPPED_SAM_DIR)		:=	$(DATA_ANALYSIS_DIR)/05_mapped_sam
-$(MAPPED_BAM_DIR)		:=	$(DATA_ANALYSIS_DIR)/06_mapped_bam
-$(MAP_SORTED_BAM_DIR)	:=	$(DATA_ANALYSIS_DIR)/07_mapped_sorted_bam
-$(FLAGSTATS_DIR)		:=	$(DATA_ANALYSIS_DIR)/08_flagstats
-$(BCF_VAR_DIR)			:=	$(DATA_ANALYSIS_DIR)/09_bcf_variants
-$(VCF_DIR)				:=	$(DATA_ANALYSIS_DIR)/10_vcf_called
+DATA_ANALYSIS_DIR	:=	/data/sars_vcf_analysis
+FASTERQ_TEMP		:=	$(DATA_ANALYSIS_DIR)/00_fasterq_temp
+FASTQ_DIR			:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
+GENOME_REF_DIR		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference
+FASTQC_DIR			:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
+TRIMMED_DIR			:=	$(DATA_ANALYSIS_DIR)/04_trimmed_fastq
+MAPPED_SAM_DIR		:=	$(DATA_ANALYSIS_DIR)/05_mapped_sam
+MAPPED_BAM_DIR		:=	$(DATA_ANALYSIS_DIR)/06_mapped_bam
+MAP_SORTED_BAM_DIR	:=	$(DATA_ANALYSIS_DIR)/07_mapped_sorted_bam
+FLAGSTATS_DIR		:=	$(DATA_ANALYSIS_DIR)/08_flagstats
+BCF_VAR_DIR			:=	$(DATA_ANALYSIS_DIR)/09_bcf_variants
+VCF_DIR				:=	$(DATA_ANALYSIS_DIR)/10_vcf_called
 
 # note these are in repo not in root /data
-$(RUNTABLE_DIR)			:=	data/00_sra_runtable
-$(SRA_RUNTABLE)			:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short.txt
-$(VCF_FOR_R_DIR)		:=	data/11_vcf_output_for_R
+RUNTABLE_DIR		:=	data/00_sra_runtable
+SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short.txt
+VCF_FOR_R_DIR		:=	data/11_vcf_output_for_R
 
 all : $(VCF_FOR_R_DIR)/%.vcf 
 
