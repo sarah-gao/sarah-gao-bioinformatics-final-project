@@ -2,6 +2,7 @@ DATA_ANALYSIS_DIR	:=	/data/sars_vcf_analysis
 FASTQ_DIR		:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
 FASTQ_FILES		:=	$(FASTQ_DIR)/$(wildcard *.fastq)
 GENOME_REF		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta
+GENOME_REF_ANN		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome_annotation.gff
 GENOME_REF_IDX		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta.idx
 FASTQC_DIR		:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
 FASTQC_FILES		:=	$(FASTQC_DIR)/$(wildcard *.html)
@@ -21,12 +22,16 @@ VCF_DIR			:=	$(DATA_ANALYSIS_DIR)/10_vcf_called
 VCF_FILES		:=	$(VCF_DIR)/$(wildcard *.vcf)
 
 # note these are in repo not in root /data
+R_FUNCTIONS		:=	$(wildcard code/functions/*.R)
 RUNTABLE_DIR		:=	data/00_sra_runtable
 SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short_example.txt
 VCF_FOR_R_DIR		:=	data/11_vcf_output_for_R
 VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
-all: $(VCF_FOR_R_FILES) $(FLAGSTATS_FILES) $(FASTQC_FILES)
+all: Analysis.pdf $(VCF_FOR_R_FILES) $(FLAGSTATS_FILES) $(FASTQC_FILES)
+
+Analysis.pdf: Analysis.Rmd references.bib code/13_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES)
+	bash code/13_render_rmd.sh $< $(GENOME_REF_ANN) $(VCF_FOR_R_DIR) $(SRA_RUNTABLE)
 
 $(VCF_FOR_R_FILES): code/12_filter_vcf.sh $(VCF_FILES)
 	bash code/12_filter_vcf.sh $(VCF_DIR)/*.vcf
@@ -68,5 +73,6 @@ $(FASTQ_FILES): code/00_setup_directories.sh code/01_download_fastq.sh $(SRA_RUN
 clean:
 	rm -vf $(VCF_FOR_R_DIR)/*.vcf
 	rm -vfr $(DATA_ANALYSIS_DIR)
+	rm -vfr output/*
 
 .PHONY: all clean
