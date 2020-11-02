@@ -1,7 +1,8 @@
-# Simple script to parse a folder of VCF files
+# Function to parse a folder of VCF files, tidy, and stack them
+
 # Naupaka Zimmerman
 # nzimmerman@usfca.edu
-# June 12, 2017
+# November 1, 2020
 
 # See great tutorial and documentation for vcfR here:
 # https://knausb.github.io/vcfR_documentation/index.html
@@ -11,13 +12,22 @@
 # call format data in R. Molecular Ecology Resources
 # 17(1):44-53. http://dx.doi.org/10.1111/1755-0998.12549.
 
+# The function takes a single argument, a directory name that has VCF files
+# in it. It will get all of them, tidy them into rectangular form, and then
+# stack them all into a single file for easier analysis
+
 parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
 
+  # check input
+  stopifnot(is.character(vcf_dir_path))
+
+  # get the names of all files in the target directory
   my_vcf_files <- list.files(path = vcf_dir_path,
                              pattern = "\\.vcf",
                              full.names = TRUE)
 
-  # Initialize a 9 column empty matrix
+  # Initialize a 9 column empty matrix to append files to. This is the start
+  # of the 'stack'
   all_vcf <- matrix(NA, 0, 9)
 
   # Loop over files and append to bottom of matrix
@@ -41,19 +51,17 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
                           my_vcf_in@fix)
 
     # Add this newly labeled data to bottom of matrix
-    all_vcf <- rbind(all_vcf,
-                     all_this_vcf)
+    all_vcf <- rbind(all_vcf, all_this_vcf)
   }
 
   # Give the strain name column a proper column name
   colnames(all_vcf)[1] <- "SAMPLE"
 
-  # Convert to df for use by dplyr and clean up column names
+  # Convert to df for use by dplyr and clean up column names for lintr
   all_vcf <- janitor::clean_names(dat = as.data.frame(all_vcf))
 
   # convert positions to numeric for gene calling
   all_vcf$pos <- as.numeric(all_vcf$pos)
 
   return(all_vcf)
-
 }
