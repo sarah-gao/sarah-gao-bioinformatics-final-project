@@ -28,9 +28,9 @@ SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short_example.txt
 VCF_FOR_R_DIR		:=	data/11_vcf_output_for_R
 VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
-all: Report.pdf $(FLAGSTATS_FILES) $(FASTQC_FILES)
+all: $(FLAGSTATS_FILES) $(FASTQC_FILES) output/Report.pdf
 
-Report.pdf: Report.Rmd references.bib code/14_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
+output/Report.pdf: Report.Rmd references.bib code/14_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
 	bash code/14_render_rmd.sh $< $(GENOME_REF_ANN) $(VCF_FOR_R_DIR) $(SRA_RUNTABLE)
 
 $(VCF_FOR_R_FILES): code/13_filter_vcf.sh $(VCF_FILES)
