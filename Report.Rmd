@@ -24,6 +24,18 @@ This is a report on SARS-CoV-2, including some variant analysis [@koyama2020vari
 
 # Methods
 
+See the set of tutorials on the [vcfR package website](https://knausb.github.io/vcfR_documentation/index.html).
+
+You may also want to use any of a range of different COVID data packages and data sources:
+
+* https://kjhealy.github.io/covdata/
+* https://github.com/como-ph/oxcovid19
+* https://ropensci.org/blog/2020/10/20/searching-medrxivr-and-biorxiv-preprint-data/
+* https://covidtracking.com/data/api
+  * `readr::read_csv("https://api.covidtracking.com/v1/states/daily.csv")`
+* https://rt.live/
+  * `readr::read_csv("https://d14wlfuexuxgcm.cloudfront.net/covid/rt.csv")`
+
 ## Subsections are ok too
 
 # Results and Discussion
