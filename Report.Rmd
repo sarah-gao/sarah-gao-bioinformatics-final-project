@@ -7,7 +7,7 @@ csl: bioinformatics.csl
 bibliography: references.bib
 params:
   gff_file_path: "/data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff"
-  vcf_dir_path: "data/11_vcf_output_for_R/"
+  vcf_dir_path: "data/11_vcf_output_for_R"
   sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA659293.txt"
 ---
 
