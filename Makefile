@@ -30,38 +30,41 @@ VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
 all: Report.pdf $(FLAGSTATS_FILES) $(FASTQC_FILES)
 
-Report.pdf: Report.Rmd references.bib code/13_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
-	bash code/13_render_rmd.sh $< $(GENOME_REF_ANN) $(VCF_FOR_R_DIR) $(SRA_RUNTABLE)
+Report.pdf: Report.Rmd references.bib code/14_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
+	bash code/14_render_rmd.sh $< $(GENOME_REF_ANN) $(VCF_FOR_R_DIR) $(SRA_RUNTABLE)
 
-$(VCF_FOR_R_FILES): code/12_filter_vcf.sh $(VCF_FILES)
-	bash code/12_filter_vcf.sh $(VCF_DIR)/*.vcf
+$(VCF_FOR_R_FILES): code/13_filter_vcf.sh $(VCF_FILES)
+	bash code/13_filter_vcf.sh $(VCF_DIR)/*.vcf
 
-$(VCF_FILES): code/11_create_vcf.sh $(BCF_VAR_FILES)
-	bash code/11_create_vcf.sh $(BCF_VAR_DIR)/*.bcf
+$(VCF_FILES): code/12_create_vcf.sh $(BCF_VAR_FILES)
+	bash code/12_create_vcf.sh $(BCF_VAR_DIR)/*.bcf
 
-$(BCF_VAR_FILES): code/10_bcftools_mpileup.sh $(MAP_SORTED_BAM_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
-	bash code/10_bcftools_mpileup.sh $(MAP_SORTED_BAM_DIR)/*.bam
+$(BCF_VAR_FILES): code/11_bcftools_mpileup.sh $(MAP_SORTED_BAM_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
+	bash code/11_bcftools_mpileup.sh $(MAP_SORTED_BAM_DIR)/*.bam
 
-$(FLAGSTATS_FILES): code/09_flagstat.sh $(MAP_SORTED_BAM_FILES)
-	bash code/09_flagstat.sh $(MAP_SORTED_BAM_DIR)/*.bam
+$(FLAGSTATS_FILES): code/10_flagstat.sh $(MAP_SORTED_BAM_FILES)
+	bash code/10_flagstat.sh $(MAP_SORTED_BAM_DIR)/*.bam
 
-$(MAP_SORTED_BAM_FILES): code/08_sort_bam.sh $(MAPPED_BAM_FILES)
-	bash code/08_sort_bam.sh $(MAPPED_BAM_DIR)/*.bam
+$(MAP_SORTED_BAM_FILES): code/09_sort_bam.sh $(MAPPED_BAM_FILES)
+	bash code/09_sort_bam.sh $(MAPPED_BAM_DIR)/*.bam
 
-$(MAPPED_BAM_FILES): code/07_sam_to_bam.sh $(MAPPED_SAM_FILES)
-	bash code/07_sam_to_bam.sh $(MAPPED_SAM_DIR)/*.sam
+$(MAPPED_BAM_FILES): code/08_sam_to_bam.sh $(MAPPED_SAM_FILES)
+	bash code/08_sam_to_bam.sh $(MAPPED_SAM_DIR)/*.sam
 
-$(MAPPED_SAM_FILES): code/06_run_bwa.sh $(TRIMMED_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
-	bash code/06_run_bwa.sh $(TRIMMED_DIR)/*.trim.fastq
+$(MAPPED_SAM_FILES): code/07_run_bwa.sh $(TRIMMED_FILES) $(GENOME_REF) $(GENOME_REF_IDX)
+	bash code/07_run_bwa.sh $(TRIMMED_DIR)/*.trim.fastq
 
-$(GENOME_REF_IDX): code/05_bwa_index.sh $(GENOME_REF)
-	bash code/05_bwa_index.sh
+$(GENOME_REF_IDX): code/06_bwa_index.sh $(GENOME_REF)
+	bash code/06_bwa_index.sh
 
-$(TRIMMED_FILES): code/04_trim.sh $(FASTQ_FILES)
-	bash code/04_trim.sh $(FASTQ_DIR)/*.fastq
+$(TRIMMED_FILES): code/05_trim.sh $(FASTQ_FILES)
+	bash code/05_trim.sh $(FASTQ_DIR)/*.fastq
 
-$(FASTQC_FILES): code/03_fastqc.sh $(FASTQ_FILES)
-	bash code/03_fastqc.sh $(FASTQ_DIR)/*.fastq
+$(FASTQC_FILES): code/04_fastqc.sh $(FASTQ_FILES)
+	bash code/04_fastqc.sh $(FASTQ_DIR)/*.fastq
+
+$(GENOME_REF_ANN): code/03_download_annotation.sh
+	bash code/03_download_annotation.sh
 
 $(GENOME_REF): code/02_download_reference.sh
 	bash code/02_download_reference.sh
