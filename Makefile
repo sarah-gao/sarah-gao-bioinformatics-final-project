@@ -1,30 +1,30 @@
-DATA_ANALYSIS_DIR		:=	/data/sars_vcf_analysis
-FASTQ_DIR				:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
-FASTQ_FILES				:=	$(FASTQ_DIR)/$(wildcard *.fastq)
-GENOME_REF				:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta
-GENOME_REF_IDX			:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta.idx
-FASTQC_DIR				:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
-FASTQC_FILES			:=	$(FASTQC_DIR)/$(wildcard *.html)
-TRIMMED_DIR				:=	$(DATA_ANALYSIS_DIR)/04_trimmed_fastq
-TRIMMED_FILES			:=	$(TRIMMED_DIR)/$(wildcard *.trim.fastq)
-MAPPED_SAM_DIR			:=	$(DATA_ANALYSIS_DIR)/05_mapped_sam
-MAPPED_SAM_FILES		:=	$(MAPPED_SAM_DIR)/$(wildcard *.sam)
-MAPPED_BAM_DIR			:=	$(DATA_ANALYSIS_DIR)/06_mapped_bam
-MAPPED_BAM_FILES		:=	$(MAPPED_BAM_DIR)/$(wildcard *.bam)
-MAP_SORTED_BAM_DIR		:=	$(DATA_ANALYSIS_DIR)/07_mapped_sorted_bam
+DATA_ANALYSIS_DIR	:=	/data/sars_vcf_analysis
+FASTQ_DIR		:=	$(DATA_ANALYSIS_DIR)/01_raw_fastq
+FASTQ_FILES		:=	$(FASTQ_DIR)/$(wildcard *.fastq)
+GENOME_REF		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta
+GENOME_REF_IDX		:=	$(DATA_ANALYSIS_DIR)/02_genome_reference/sars_refgenome.fasta.idx
+FASTQC_DIR		:=	$(DATA_ANALYSIS_DIR)/03_fastqc_output
+FASTQC_FILES		:=	$(FASTQC_DIR)/$(wildcard *.html)
+TRIMMED_DIR		:=	$(DATA_ANALYSIS_DIR)/04_trimmed_fastq
+TRIMMED_FILES		:=	$(TRIMMED_DIR)/$(wildcard *.trim.fastq)
+MAPPED_SAM_DIR		:=	$(DATA_ANALYSIS_DIR)/05_mapped_sam
+MAPPED_SAM_FILES	:=	$(MAPPED_SAM_DIR)/$(wildcard *.sam)
+MAPPED_BAM_DIR		:=	$(DATA_ANALYSIS_DIR)/06_mapped_bam
+MAPPED_BAM_FILES	:=	$(MAPPED_BAM_DIR)/$(wildcard *.bam)
+MAP_SORTED_BAM_DIR	:=	$(DATA_ANALYSIS_DIR)/07_mapped_sorted_bam
 MAP_SORTED_BAM_FILES	:=	$(MAP_SORTED_BAM_DIR)/$(wildcard *.bam)
-FLAGSTATS_DIR			:=	$(DATA_ANALYSIS_DIR)/08_flagstats
-FLAGSTATS_FILES			:=	$(FLAGSTATS_DIR)/$(wildcard *.txt)
-BCF_VAR_DIR				:=	$(DATA_ANALYSIS_DIR)/09_bcf_variants
-BCF_VAR_FILES			:=	$(BCF_VAR_DIR)/$(wildcard *.bcf)
-VCF_DIR					:=	$(DATA_ANALYSIS_DIR)/10_vcf_called
-VCF_FILES				:=	$(VCF_DIR)/$(wildcard *.vcf)
+FLAGSTATS_DIR		:=	$(DATA_ANALYSIS_DIR)/08_flagstats
+FLAGSTATS_FILES		:=	$(FLAGSTATS_DIR)/$(wildcard *.txt)
+BCF_VAR_DIR		:=	$(DATA_ANALYSIS_DIR)/09_bcf_variants
+BCF_VAR_FILES		:=	$(BCF_VAR_DIR)/$(wildcard *.bcf)
+VCF_DIR			:=	$(DATA_ANALYSIS_DIR)/10_vcf_called
+VCF_FILES		:=	$(VCF_DIR)/$(wildcard *.vcf)
 
 # note these are in repo not in root /data
-RUNTABLE_DIR			:=	data/00_sra_runtable
-SRA_RUNTABLE			:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short_example.txt
-VCF_FOR_R_DIR			:=	data/11_vcf_output_for_R
-VCF_FOR_R_FILES			:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
+RUNTABLE_DIR		:=	data/00_sra_runtable
+SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short_example.txt
+VCF_FOR_R_DIR		:=	data/11_vcf_output_for_R
+VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
 all: $(VCF_FOR_R_FILES) $(FLAGSTATS_FILES) $(FASTQC_FILES)
 
