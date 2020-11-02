@@ -19,4 +19,4 @@ RMD_FILE="$1"
 RMD_PARAMS="params = list(gff_file_path = '$2', vcf_dir_path = '$3', sra_runtable_path = '$4')"
 RMD_OUTPUT="output_dir = 'output'"
 
-Rscript -e "rmarkdown::render($RMD_FILE, $RMD_PARAMS, $RMD_OUTPUT)"
+Rscript -e "rmarkdown::render('$RMD_FILE', $RMD_PARAMS, $RMD_OUTPUT)"
