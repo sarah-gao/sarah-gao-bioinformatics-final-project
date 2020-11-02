@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# saved to RAID
 OUTPUT_DIR="/data/sars_vcf_analysis/07_mapped_sorted_bam/"
 
 if [ $# -eq 0 ]
@@ -11,6 +16,7 @@ then
     exit 1
 fi
 
+# sort each of the bam files given as input by coordinates and save the output
 for bam_file in "$@"
 do
     echo "Sorting ${bam_file}..."

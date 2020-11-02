@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# save to RAID
 OUTPUT_DIR="/data/sars_vcf_analysis/08_flagstats/"
 
 if [ $# -eq 0 ]
@@ -11,6 +16,7 @@ then
     exit 1
 fi
 
+# run flagstats to get some info on the sorted bam files
 for sorted_bam_file in "$@"
 do
     echo "Running flagstats on ${sorted_bam_file}..."

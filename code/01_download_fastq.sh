@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+# Script that uses fasterq-dump from the SRA tools software set to download fastq files
+# based on SRA run IDs taken from an SRA RunTable file, which is parsed
+#
+# The script assumes that there is a header row, which is removed, and that the Run IDs
+# e.g. SRR#### are in the first column. This can be adjusted as needed below in the for loop
+
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# importantly, both of these are on the RAID drive, not in the repo
 OUTPUT_DIR="/data/sars_vcf_analysis/01_raw_fastq"
 TEMP_DIR="/data/sars_vcf_analysis/00_fasterq_temp"
 
@@ -17,9 +28,15 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
+    # the -L 6 is the output level, 6 is the highest for lots of output
+    # this also sets a temp directory on the RAID drive in case it is needed
+    # this will also split forward and reverse reads if they would otherwise be
+    # in a single file
     fasterq-dump --split-files -L 6 --temp "$TEMP_DIR" --outdir "$OUTPUT_DIR" "$run_id"
 done
 
-# Remove all reverse reads for speed purposes
+# Remove all reverse reads for speed purposes -- for a real analysis, probably
+# would want to keep these in here, and then would also want to adjust other
+# downstream scripts as well (e.g. TrimmomaticPE instead of TrimmomaticSE, etc.)
 echo "Removing all reverse reads to make things run faster"
 rm -vf ${OUTPUT_DIR}/*_2.fastq

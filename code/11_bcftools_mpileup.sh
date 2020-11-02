@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# both on RAID
 OUTPUT_DIR="/data/sars_vcf_analysis/09_bcf_variants/"
 REF_GENOME="/data/sars_vcf_analysis/02_genome_reference/sars_refgenome.fasta"
 
@@ -12,7 +17,8 @@ then
     exit 1
 fi
 
-# run trimmomatic to throw out bad sequences, trim when quality gets low
+# calculate the read converage of positions in the genome, save the output
+# this gives information on the read coverage per base in the genome
 for sorted_bam_file in "$@"
 do
     bcftools mpileup -O b -o "${OUTPUT_DIR}$(basename "$sorted_bam_file").raw.bcf" -f "$REF_GENOME" "$sorted_bam_file"

@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Script to set up necessary directory structure on RAID drive for downloading
+# and processing sequence files for the variant calling pipeline
+
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
 mkdir -p /data/sars_vcf_analysis/00_fasterq_temp
 mkdir -p /data/sars_vcf_analysis/01_raw_fastq
 mkdir -p /data/sars_vcf_analysis/02_genome_reference

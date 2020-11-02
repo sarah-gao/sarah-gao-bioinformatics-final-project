@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# on RAID
 OUTPUT_DIR="/data/sars_vcf_analysis/10_vcf_called/"
 
 if [ $# -eq 0 ]
@@ -11,6 +16,8 @@ then
     exit 1
 fi
 
+# this is where the SNPs are actually called for each input file
+# using ploidy 1 for the viral genome; should be changed for other analyses
 for bcf_file in "$@"
 do
     # use -m for multiallelic caller (viral population) and -v to output only variants 

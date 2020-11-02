@@ -2,6 +2,13 @@
 
 set -euo pipefail
 
+# Naupaka Zimmerman
+# nzimmerman@usfca.edu
+# November 1, 2020
+
+# this script will run fastqc on a list of fastq files given as input
+
+# set output dir to be on RAID
 OUTPUT_DIR="/data/sars_vcf_analysis/03_fastqc_output"
 
 if [ $# -eq 0 ]
