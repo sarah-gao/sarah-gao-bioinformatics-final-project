@@ -1,22 +1,97 @@
 ---
 title: 'Your Title Here'
 author: "Don Francisco"
-date: "October 25, 2020"
+date: "November 1, 2020"
 output: pdf_document
 csl: bioinformatics.csl
 bibliography: references.bib
+params:
+  gff_file_path: "/data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff"
+  vcf_dir_path: "data/11_vcf_output_for_R/"
+  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA659293.txt"
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = TRUE, error = TRUE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      error = TRUE)
 ```
 
-# Project Summary
+# Background and Overview
+
+This is a report on SARS-CoV-2, including some variant analysis [@koyama2020variant].
 
 # Methods
 
-# Findings
-
 ## Subsections are ok too
+
+# Results and Discussion
+
+```{r load-packages-and-functions}
+library("vcfR")
+library("ggplot2")
+library("dplyr")
+library("ggthemes")
+
+# this loads all function files in the code/functions directory
+function_paths <- list.files("code/functions", full.names = TRUE)
+purrr::walk(function_paths, source)
+```
+
+```{r load-vcf-data}
+# load in, tidy, and stack all of the VCF files in the target directory
+# these are the output of the bash pipeline
+stacked_vcfs <- parse_tidy_and_stack_vcfs(
+  vcf_dir_path = params$vcf_dir_path)
+
+# load in the gff file with genome annotations for SARS-CoV-2
+gff <- read_gff(gff_file_path = params$gff_file_path)
+
+# pull out just the named genes from the annotation file
+gene_table <- extract_genes_from_gff(annotation_object = gff)
+
+# combine the stacked vcf table with the gene names and the metadata from
+# the sra runtable file
+vcf_with_metadata <- add_genes_metadata_to_vcfstack(
+  sra_runtable_path = params$sra_runtable_path,
+  stacked_vcf = stacked_vcfs,
+  cleaned_genes_table = gene_table)
+```
+
+# Figures
+
+```{r sample-plot}
+# create a plot of unique SNP locations within each gene across all samples
+vcf_with_metadata %>%
+  filter(!is.na(gene)) %>% # get rid of SNPs not in gene regions
+  group_by(gene, pos) %>%
+  tally() %>% # this gives a column n for the number of gene by position
+  group_by(gene) %>%
+  tally() %>% # this collapses that down to the number of unique SNP locations
+  ggplot(aes(x = gene,
+             y = n)) +
+    geom_col() +
+    labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
+         x = "Gene Name") +
+  theme_few() # get rid of the grey background
+```
+
+**Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
+
+# Tables
+
+```{r example-table}
+# An example table to show the length of each gene using its start and end
+gene_table %>%
+  mutate(length = end - start) %>%
+  select(gene_name, start, end, length) %>%
+  knitr::kable(col.names = c("Gene Name",
+                             "Start",
+                             "End",
+                             "Length"))
+```
+
+**Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome. Higher SNP counts in the S and N genes may be related to the larger size of these genes.
 
 # Sources Cited
