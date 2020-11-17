@@ -10,12 +10,9 @@ are made available under a [CC-BY 4.0 license](https://creativecommons.org/licen
 
 ***
 
-The goal of this project is to analyze complete SARS-CoV-2 genomes sampled from various geographies for 
-SNP variants and determine genotypes. These variants will be compared across geographies to identify 
-mutation patterns over time. Similarity will be measured using the Jaccard similarity coefficient as 
-outlined in [Yin, 2020](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7184998/)
-
-(Alternative idea: Compare sequences from [patient with reinfection](https://www.ncbi.nlm.nih.gov/bioproject/674796)
+The goal of this project is to analyze SARS-CoV-2 genomes sampled from Beijing Ditan Hospital in the fall of 2020 for SNP variants. These will be 
+compared against the reference genome from Wuhan in 2019 to see if there have been any major changes since the virus emerged even within the same 
+country.
 
 ***
 
