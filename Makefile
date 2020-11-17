@@ -30,6 +30,10 @@ VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
 all: $(FLAGSTATS_FILES) $(FASTQC_FILES) output/Report.pdf
 
+check:
+	Rscript -e "lintr::lint_dr(pattern = rex::rex('.', or('R', 'r', 'Rmd', 'rmd'), end))"
+	find . -name "*.sh" | xargs shellcheck
+
 output/Report.pdf: Report.Rmd references.bib code/14_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
 	bash code/14_render_rmd.sh $< $(GENOME_REF_ANN) $(VCF_FOR_R_DIR) $(SRA_RUNTABLE)
 
