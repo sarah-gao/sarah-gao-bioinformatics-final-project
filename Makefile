@@ -24,7 +24,7 @@ VCF_FILES		:=	$(VCF_DIR)/$(wildcard *.vcf)
 # note these are in repo not in root /data
 R_FUNCTIONS		:=	$(wildcard code/functions/*.R)
 RUNTABLE_DIR		:=	data/00_sra_runtable
-SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA656695_short_example.txt
+SRA_RUNTABLE		:=	$(RUNTABLE_DIR)/SraRunTable_PRJNA667180_short.txt
 VCF_FOR_R_DIR		:=	data/11_vcf_output_for_R
 VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 
