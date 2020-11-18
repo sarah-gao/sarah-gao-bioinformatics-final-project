@@ -28,11 +28,14 @@ fi
 # and skipping first row as header
 for run_id in $(tail -n +2 "$1" | cut -d, -f1)
 do
+    # Set up prefetch to account for fasterq-dump errors when downloading a lot of files
+    # The cached files from prefetch can be configured using "vdb-config -i"
+    # This pipeline is set up to cache these files in $OUTPUT_DIR/prefetch_cache
+    prefetch "$run_id"
     # the -L 6 is the output level, 6 is the highest for lots of output
     # this also sets a temp directory on the RAID drive in case it is needed
     # this will also split forward and reverse reads if they would otherwise be
     # in a single file
-    prefetch "$run_id"
     fasterq-dump --split-files -L 6 --temp "$TEMP_DIR" --outdir "$OUTPUT_DIR" "$run_id"
 
     # Remove extraneous .fastq files without the "_1" forward read suffix
