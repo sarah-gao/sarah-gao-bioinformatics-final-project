@@ -8,7 +8,7 @@ bibliography: references.bib
 params:
   gff_file_path: "/data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff"
   vcf_dir_path: "data/11_vcf_output_for_R"
-  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA656695_short_example"
+  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA656695_short_example.txt"
 ---
 
 ```{r setup, include = FALSE}
@@ -80,7 +80,7 @@ vcf_with_metadata %>%
   group_by(gene, pos) %>%
   tally() %>% # this gives a column n for the number of gene by position
   group_by(gene) %>%
-  tally() %>% # this collapses that down to the number of unique SNP locations
+z`  tally() %>% # this collapses that down to the number of unique SNP locations
   ggplot(aes(x = gene,
              y = n)) +
     geom_col() +
