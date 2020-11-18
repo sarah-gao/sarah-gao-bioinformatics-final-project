@@ -40,6 +40,11 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
 
     tidied_vcf <- vcfR::vcfR2tidy(my_vcf_in)
 
+    # check for correct filenames in dataset
+    if (!grepl(x = tidied_vcf$gt$Indiv[1], pattern = "[SED]RR[0-9]*")) {
+        stop("The files don't seem to be named with SRR/ERR/DRR ids.")
+    }
+
     # Pull strain name out of first part of filename, assuming SRR ID
     sample_name <- stringr::str_extract(string = tidied_vcf$gt$Indiv[1],
                                         pattern = "[SED]RR[0-9]*")
