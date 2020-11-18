@@ -24,6 +24,8 @@ This is a report on SARS-CoV-2, including some variant analysis [@koyama2020vari
 
 # Methods
 
+Note: When downloading the data set, an additional, smaller fastq file is included without the usual "_1" or "_2" suffix. These have been removed along with the reverse reads.
+
 See the set of tutorials on the [vcfR package website](https://knausb.github.io/vcfR_documentation/index.html).
 
 You may also want to use any of a range of different COVID data packages and data sources:
