@@ -42,7 +42,7 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
 
     # Pull strain name out of first part of filename, assuming SRR ID
     sample_name <- stringr::str_extract(string = tidied_vcf$gt$Indiv[1],
-                                        pattern = "SRR[0-9]*")
+                                        pattern = "[SED]RR[0-9]*")
 
     # Bind column of strain name to rest of data for that
     # strain, pulled out of @fix slot in vcf object
