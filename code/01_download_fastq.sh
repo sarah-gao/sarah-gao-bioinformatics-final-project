@@ -32,15 +32,15 @@ do
     # this also sets a temp directory on the RAID drive in case it is needed
     # this will also split forward and reverse reads if they would otherwise be
     # in a single file
-    # prefetch "$run_id"
+    prefetch "$run_id"
     fasterq-dump --split-files -L 6 --temp "$TEMP_DIR" --outdir "$OUTPUT_DIR" "$run_id"
 
     # Remove extraneous .fastq files without the "_1" forward read suffix
     rm -vf ${OUTPUT_DIR}/${run_id}.fastq
-done
 
-# Remove all reverse reads for speed purposes -- for a real analysis, probably
-# would want to keep these in here, and then would also want to adjust other
-# downstream scripts as well (e.g. TrimmomaticPE instead of TrimmomaticSE, etc.)
-echo "Removing all reverse reads to make things run faster"
-rm -vf ${OUTPUT_DIR}/*_2.fastq
+    # Remove all reverse reads for speed purposes -- for a real analysis, probably
+    # would want to keep these in here, and then would also want to adjust other
+    # downstream scripts as well (e.g. TrimmomaticPE instead of TrimmomaticSE, etc.)
+    echo "Removing all reverse reads to make things run faster"
+    rm -vf ${OUTPUT_DIR}/*_2.fastq
+done

@@ -81,5 +81,6 @@ clean:
 	rm -vf $(VCF_FOR_R_DIR)/*.vcf
 	rm -vfr $(DATA_ANALYSIS_DIR)
 	rm -vfr output/*
+	rm -vfr $(FASTQ_DIR)/prefetch_cache/*
 
 .PHONY: all clean
