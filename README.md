@@ -18,4 +18,5 @@ country.
 
 Change Log:
 
+* 2020-11-17: Added SRA run table with Beijing data sets. Added prefetch step throughout pipeline in `01_setup_directories.sh` and `01_download_fastq.sh` bash scripts as well as in the `Makefile` clean command. Trying to work out fasterq-dump error when downloading the entire data set.
 * 2020-11-16: Updated README with project goal.
