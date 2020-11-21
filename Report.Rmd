@@ -1,14 +1,14 @@
 ---
-title: 'Your Title Here'
-author: "Don Francisco"
-date: "November 1, 2020"
+title: "Tracking SARS-CoV-2 mutation in Beijing 11 months after Wuhan onset"
+author: "Sarah Gao"
+date: "November 19, 2020"
 output: pdf_document
 csl: bioinformatics.csl
 bibliography: references.bib
 params:
   gff_file_path: "/data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff"
   vcf_dir_path: "data/11_vcf_output_for_R"
-  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA656695_short_example.txt"
+  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA667180.txt"
 ---
 
 ```{r setup, include = FALSE}
@@ -20,11 +20,16 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # Background and Overview
 
-This is a report on SARS-CoV-2, including some variant analysis [@koyama2020variant].
+This is a report examining how the SARS-CoV-2 virus has mutated within one country over time and includes some variant analysis [@koyama2020variant].
+This report uses a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses from Beijing Ditan Hospital Capital Medical University. These samples were taken on October 3rd and 4th of 2020 and are compared against the Wuhan reference genome that was collected in December of 2019.
+
+This report then examines how case rates and transmission rates in Beijing have fluctuated over time as the virus has continued to spread throughout the world.
 
 # Methods
 
 Note: When downloading the data set, an additional, smaller fastq file is included without the usual "_1" or "_2" suffix. These have been removed along with the reverse reads.
+
+
 
 See the set of tutorials on the [vcfR package website](https://knausb.github.io/vcfR_documentation/index.html).
 
@@ -47,6 +52,7 @@ library("vcfR")
 library("ggplot2")
 library("dplyr")
 library("ggthemes")
+library("oxcovid19")
 
 # this loads all function files in the code/functions directory
 function_paths <- list.files("code/functions", full.names = TRUE)
@@ -73,26 +79,6 @@ vcf_with_metadata <- add_genes_metadata_to_vcfstack(
   cleaned_genes_table = gene_table)
 ```
 
-# Figures
-
-```{r sample-plot}
-# create a plot of unique SNP locations within each gene across all samples
-vcf_with_metadata %>%
-  filter(!is.na(gene)) %>% # get rid of SNPs not in gene regions
-  group_by(gene, pos) %>%
-  tally() %>% # this gives a column n for the number of gene by position
-  group_by(gene) %>%
-z`  tally() %>% # this collapses that down to the number of unique SNP locations
-  ggplot(aes(x = gene,
-             y = n)) +
-    geom_col() +
-    labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
-         x = "Gene Name") +
-  theme_few() # get rid of the grey background
-```
-
-**Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
-
 # Tables
 
 ```{r example-table}
@@ -108,4 +94,41 @@ gene_table %>%
 
 **Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome. Higher SNP counts in the S and N genes may be related to the larger size of these genes.
 
+# Figures
+
+```{r SNPS-by-genes}
+# Create a plot of unique SNP locations within each gene across all samples
+unique_snps <- vcf_with_metadata %>%
+  filter(!is.na(gene)) %>% # get rid of SNPs not in gene regions
+  group_by(gene, pos) %>%
+  tally() %>% # this gives a column n for the number of gene by position
+  group_by(gene) %>%
+  tally() # this collapses that down to the number of unique SNP locations
+
+ggplot(unique_snps, aes(x = gene,
+                        y = n)) +
+      geom_col() +
+      labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
+          x = "Gene Name") +
+      theme_few() # get rid of the grey background
+```
+
+**Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
+
+```{r variants-by-percentage}
+# Create a plot that shows the number of unique SNP locations as a percentage of gene length
+total_length <- max(gff$end)
+gene_per <- gene_table %>%
+  mutate(length = end - start) %>%
+  mutate(percentage = length / total_length) %>%
+  select(gene_name, length, percentage) %>%
+  knitr::kable(col.names = c("gene",
+                             "length",
+                             "percentage"))
+
+# Add a column in unique SNPs data frame that shows gene lengths and percentage
+unique_snps_per <- cbind
+
+  
+```
 # Sources Cited
