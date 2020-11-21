@@ -10,8 +10,6 @@ set -euo pipefail
 
 mkdir -p /data/sars_vcf_analysis/00_fasterq_temp
 mkdir -p /data/sars_vcf_analysis/01_raw_fastq
-# Adding a folder within raw_fastq for prefetch cache
-mkdir -p /data/sars_vcf_analysis/01_raw_fastq/prefetch_cache
 mkdir -p /data/sars_vcf_analysis/02_genome_reference
 mkdir -p /data/sars_vcf_analysis/03_fastqc_output
 mkdir -p /data/sars_vcf_analysis/04_trimmed_fastq

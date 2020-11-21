@@ -31,7 +31,7 @@ VCF_FOR_R_FILES		:=	$(VCF_FOR_R_DIR)/$(wildcard *.vcf)
 all: $(FLAGSTATS_FILES) $(FASTQC_FILES) output/Report.pdf
 
 check:
-	Rscript -e "lintr::lint_dr(pattern = rex::rex('.', or('R', 'r', 'Rmd', 'rmd'), end))"
+	Rscript -e "lintr::lint_dir(pattern = rex::rex('.', or('R', 'r', 'Rmd', 'rmd'), end))"
 	find . -name "*.sh" | xargs shellcheck
 
 output/Report.pdf: Report.Rmd references.bib code/14_render_rmd.sh $(R_FUNCTIONS) $(VCF_FOR_R_FILES) $(GENOME_REF_ANN) $(SRA_RUNTABLE)
@@ -81,6 +81,5 @@ clean:
 	rm -vf $(VCF_FOR_R_DIR)/*.vcf
 	rm -vfr $(DATA_ANALYSIS_DIR)
 	rm -vfr output/*
-	rm -vfr $(FASTQ_DIR)/prefetch_cache/*
 
-.PHONY: all clean
+.PHONY: all clean check
