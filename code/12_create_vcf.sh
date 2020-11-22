@@ -21,7 +21,7 @@ fi
 for bcf_file in "$@"
 do
     # use -m for multiallelic caller (viral population) and -v to output only variants 
-    echo "Calling varants for ${bcf_file}..."
+    echo "Calling variants for ${bcf_file}..."
     bcftools call --ploidy 1 -m -v -o "${OUTPUT_DIR}$(basename "$bcf_file").variants.vcf" "$bcf_file"
 done
 

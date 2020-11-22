@@ -6,7 +6,7 @@ set -euo pipefail
 # nzimmerman@usfca.edu
 # November 1, 2020
 
-# on RAID
+# in the repo
 OUTPUT_DIR="data/11_vcf_output_for_R/"
 
 if [ $# -eq 0 ]
