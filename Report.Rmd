@@ -96,6 +96,20 @@ gene_table %>%
 
 # Figures
 
+```{r samples-by-isolation-source}
+# Create a bar graph showing the distribution of sample isolation sources
+isolation_source <- vcf_with_metadata %>%
+  group_by(Isolation_source) %>%
+  tally()
+
+ggplot(isolation_source, aes(x = Isolation_source,
+                              y = n)) +
+  geom_col() +
+  labs(title = "Number of Samples per Isolation Source",
+       x = "Isolation Source",
+       y = "Number of Samples")
+```
+
 ```{r SNPS-by-genes}
 # Create a plot of unique SNP locations within each gene across all samples
 unique_snps <- vcf_with_metadata %>%
@@ -116,19 +130,31 @@ ggplot(unique_snps, aes(x = gene,
 **Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
 
 ```{r variants-by-percentage}
-# Create a plot that shows the number of unique SNP locations as a percentage of gene length
+# Create a plot that shows the number of unique SNP locations as a percentage
+# of gene length
+# Create vector with percentages of gene length to total genome length
 total_length <- max(gff$end)
+unique_snps_per <- matrix(NA, 0, 3)
+gene_per <- matrix(NA, 0, 3)
 gene_per <- gene_table %>%
   mutate(length = end - start) %>%
   mutate(percentage = length / total_length) %>%
-  select(gene_name, length, percentage) %>%
-  knitr::kable(col.names = c("gene",
-                             "length",
-                             "percentage"))
+  select(gene_name, length, percentage)
 
-# Add a column in unique SNPs data frame that shows gene lengths and percentage
-unique_snps_per <- cbind
+# Reorder percentages dataframe by gene name to match
+gene_per <- gene_per[order(gene_per$gene_name),]
 
+# Add a column in unique SNPs dataframe that shows percentage
+unique_snps_per <- cbind(unique_snps, 'percentage' = gene_per$percentage_of_gen)
+
+
+# Create plot
+ggplot2(unique_snps_per, aes(x = gene,
+                        y = percentage_of_gen)) +
+      geom_col() +
+      labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
+          x = "Gene Name") +
+      theme_few() # get rid of the grey background)
   
 ```
 # Sources Cited
