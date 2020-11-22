@@ -17,7 +17,7 @@ then
     exit 1
 fi
 
-# calculate the read converage of positions in the genome, save the output
+# calculate the read coverage of positions in the genome, save the output
 # this gives information on the read coverage per base in the genome
 for sorted_bam_file in "$@"
 do
