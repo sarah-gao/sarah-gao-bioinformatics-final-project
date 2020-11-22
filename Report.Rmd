@@ -83,9 +83,11 @@ vcf_with_metadata <- add_genes_metadata_to_vcfstack(
 
 ```{r example-table}
 # An example table to show the length of each gene using its start and end
-gene_table %>%
+gene_table_lengths <- gene_table %>%
   mutate(length = end - start) %>%
-  select(gene_name, start, end, length) %>%
+  select(gene_name, start, end, length)
+
+gene_table_lengths %>%
   knitr::kable(col.names = c("Gene Name",
                              "Start",
                              "End",
@@ -130,27 +132,29 @@ ggplot(unique_snps, aes(x = gene,
 **Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
 
 ```{r variants-by-percentage}
-# Create a plot that shows the number of unique SNP locations as a percentage
-# of gene length
+# Create a plot that compares the number of SNPs found in each gene with the
+# expected number of SNPs if proportional to gene length
 # Create vector with percentages of gene length to total genome length
-total_length <- max(gff$end)
+total_genes_length <- sum(gene_table_lengths$length)
 unique_snps_per <- matrix(NA, 0, 3)
 gene_per <- matrix(NA, 0, 3)
-gene_per <- gene_table %>%
+gene_per <- gene_table_lengths %>%
   mutate(length = end - start) %>%
-  mutate(percentage = length / total_length) %>%
+  mutate(percentage = length / total_genes_length) %>%
   select(gene_name, length, percentage)
 
 # Reorder percentages dataframe by gene name to match
 gene_per <- gene_per[order(gene_per$gene_name),]
 
 # Add a column in unique SNPs dataframe that shows percentage
-unique_snps_per <- cbind(unique_snps, 'percentage' = gene_per$percentage_of_gen)
+total_SNPs = sum(unique_snps_per$n)
+unique_snps_per <- cbind(unique_snps,
+                         'percentage_of_total_genes' = gene_per$percentage, 'expected_SNPs' = total_SNPs*unique_snps_per$percentage_of_total_genes)
 
 
 # Create plot
-ggplot2(unique_snps_per, aes(x = gene,
-                        y = percentage_of_gen)) +
+ggplot(unique_snps_per, aes(x = gene,
+                        y = weighted_SNPs)) +
       geom_col() +
       labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
           x = "Gene Name") +
