@@ -1,14 +1,17 @@
 ---
-title: "Tracking SARS-CoV-2 mutation in Beijing 11 months after Wuhan onset"
+title: "Tracking SARS-CoV-2 mutation and transmission rates in Beijing 11 months after Wuhan onset"
 author: "Sarah Gao"
 date: "November 19, 2020"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 csl: bioinformatics.csl
 bibliography: references.bib
 params:
-  gff_file_path: "/data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff"
-  vcf_dir_path: "data/11_vcf_output_for_R"
-  sra_runtable_path: "data/00_sra_runtable/SraRunTable_PRJNA667180.txt"
+  gff_file_path: /data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff
+  vcf_dir_path: data/11_vcf_output_for_R
+  sra_runtable_path: data/00_sra_runtable/SraRunTable_PRJNA667180.txt
 ---
 
 ```{r setup, include = FALSE}
@@ -20,10 +23,11 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # Background and Overview
 
-This is a report examining how the SARS-CoV-2 virus has mutated within one country over time and includes some variant analysis [@koyama2020variant].
-This report uses a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses from Beijing Ditan Hospital Capital Medical University. These samples were taken on October 3rd and 4th of 2020 and are compared against the Wuhan reference genome that was collected in December of 2019.
+This report examines how the SARS-CoV-2 virus has mutated within and affected the population in Beijing, China. Beijing is approximately 717 miles (~1,153 km) from Wuhan, a city in Hubei province that was the center of the first known COVID-19 cases first reported in December 2019.
 
-This report then examines how case rates and transmission rates in Beijing have fluctuated over time as the virus has continued to spread throughout the world.
+This report uses a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al [@du2020] took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University.
+
+This report examines these viral genomes and identifies variants among known viral gene loci. It also examines how case rates and transmission rates in Beijing have fluctuated over time as the virus has continued to spread and mutate throughout the world.
 
 # Methods
 
@@ -53,6 +57,7 @@ library("ggplot2")
 library("dplyr")
 library("ggthemes")
 library("oxcovid19")
+library("tidyr")
 
 # this loads all function files in the code/functions directory
 function_paths <- list.files("code/functions", full.names = TRUE)
@@ -81,12 +86,12 @@ vcf_with_metadata <- add_genes_metadata_to_vcfstack(
 
 # Tables
 
-```{r example-table}
+```{r gene-lengths-table}
 # An example table to show the length of each gene using its start and end
 gene_table_lengths <- gene_table %>%
   mutate(length = end - start) %>%
   select(gene_name, start, end, length)
-
+  
 gene_table_lengths %>%
   knitr::kable(col.names = c("Gene Name",
                              "Start",
@@ -98,20 +103,7 @@ gene_table_lengths %>%
 
 # Figures
 
-```{r samples-by-isolation-source}
-# Create a bar graph showing the distribution of sample isolation sources
-isolation_source <- vcf_with_metadata %>%
-  group_by(Isolation_source) %>%
-  tally()
-
-ggplot(isolation_source, aes(x = Isolation_source,
-                              y = n)) +
-  geom_col() +
-  labs(title = "Number of Samples per Isolation Source",
-       x = "Isolation Source",
-       y = "Number of Samples")
-```
-
+Here we see the SNP counts in each gene region and that indeed, there are more SNPs in the larger S and N genes.
 ```{r SNPS-by-genes}
 # Create a plot of unique SNP locations within each gene across all samples
 unique_snps <- vcf_with_metadata %>%
@@ -119,16 +111,17 @@ unique_snps <- vcf_with_metadata %>%
   group_by(gene, pos) %>%
   tally() %>% # this gives a column n for the number of gene by position
   group_by(gene) %>%
-  tally() # this collapses that down to the number of unique SNP locations
+  tally() %>% # this collapses that down to the number of unique SNP locations
+  rename(observed_snps = n)
 
 ggplot(unique_snps, aes(x = gene,
-                        y = n)) +
+                        y = observed_snps)) +
       geom_col() +
       labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
-          x = "Gene Name") +
+          x = "Gene Name",
+          y = "SNP Counts") +
       theme_few() # get rid of the grey background
 ```
-
 **Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
 
 ```{r variants-by-percentage}
@@ -147,18 +140,49 @@ gene_per <- gene_table_lengths %>%
 gene_per <- gene_per[order(gene_per$gene_name),]
 
 # Add a column in unique SNPs dataframe that shows percentage
-total_SNPs = sum(unique_snps_per$n)
+total_snps = sum(unique_snps$observed_snps)
 unique_snps_per <- cbind(unique_snps,
-                         'percentage_of_total_genes' = gene_per$percentage, 'expected_SNPs' = total_SNPs*unique_snps_per$percentage_of_total_genes)
+                         'percentage_of_total_genes' = gene_per$percentage,
+                         'expected_snps'= total_snps*gene_per$percentage)
+unique_snps_per <- unique_snps_per %>%
+  pivot_longer(
+  cols = c('observed_snps', 'expected_snps'),
+  names_to = "expect_v_actual",
+  values_to = "snp_values"
+)
 
-
-# Create plot
-ggplot(unique_snps_per, aes(x = gene,
-                        y = weighted_SNPs)) +
-      geom_col() +
+# Create a grouped bar graph comparing expected vs actual SNP counts
+ggplot(unique_snps_per, aes(fill = expect_v_actual,
+                            x = gene,
+                            y = snp_values)) +
+      geom_col(position = "dodge") +
       labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
-          x = "Gene Name") +
-      theme_few() # get rid of the grey background)
+          x = "Gene Name",
+          y = "SNP Values") +
+  scale_fill_discrete(name = "Legend", labels = c("Expected counts",
+                                                  "Observed counts")) +
+      theme_few()
   
 ```
+**Figure 2**: Comparison of expected SNP counts and observed SNP counts based on equal rate of mutation across all genes.
+
+```{r samples-by-isolation-source}
+# Create a bar graph showing the distribution of sample isolation sources
+isolation_source <- vcf_with_metadata %>%
+  group_by(Isolation_source) %>%
+  tally()
+
+ggplot(isolation_source, aes(x = Isolation_source,
+                              y = n)) +
+  geom_col() +
+  labs(title = "Number of Samples per Isolation Source",
+       x = "Isolation Source",
+       y = "Number of Samples") +
+  scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum")) +
+  theme_few()
+```
+**Figure 3**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
+
+
+
 # Sources Cited
