@@ -23,17 +23,15 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # Background and Overview
 
-This report examines how the SARS-CoV-2 virus has mutated within and affected the population in Beijing, China. Beijing is approximately 717 miles (~1,153 km) from Wuhan, a city in Hubei province that was the center of the first known COVID-19 cases first reported in December 2019.
+In late 2019, the first cases of Severe Acute Respiratory Syndrome Coronavirus 2 caused by the SARS-CoV-2 virus were reported in Wuhan, China. Since then, the virus has spread rapidly around the world and has resulted in more than 1.4 million deaths worldwide as of November, 27th 2020 [@jhu2020].
 
-This report uses a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al [@du2020] took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University.
+Researchers around the globe have identified key mutations that are predominant in different locations, indicating that the virus has been evolving over time to form location-specific strains. This report examined how the SARS-CoV-2 virus has mutated within and affected the population in Beijing, China. Beijing is approximately 717 miles (~1,153 km) from Wuhan, a city in Hubei province that was the center of the first known COVID-19 cases first reported in December 2019.
 
-This report examines these viral genomes and identifies variants among known viral gene loci. It also examines how case rates and transmission rates in Beijing have fluctuated over time as the virus has continued to spread and mutate throughout the world.
+This report used a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al [@du2020] took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University. 
 
 # Methods
 
 Note: When downloading the data set, an additional, smaller fastq file is included without the usual "_1" or "_2" suffix. These have been removed along with the reverse reads.
-
-
 
 See the set of tutorials on the [vcfR package website](https://knausb.github.io/vcfR_documentation/index.html).
 
@@ -58,6 +56,7 @@ library("dplyr")
 library("ggthemes")
 library("oxcovid19")
 library("tidyr")
+library("scales")
 
 # this loads all function files in the code/functions directory
 function_paths <- list.files("code/functions", full.names = TRUE)
@@ -100,6 +99,31 @@ gene_table_lengths %>%
 ```
 
 **Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome. Higher SNP counts in the S and N genes may be related to the larger size of these genes.
+
+```{r mutations-by-gene}
+# Create a table to show the mutation positions and associated genes identified
+# by Pachetti et al (2020)
+key_mutations <- data.frame("mut_position" = c(
+  1397, 2891, 3036, 8782, 11083, 14408, 17746, 17857, 18060, 23403, 
+  28144, 26143, 28881), "gene_name" = (NA))
+
+# Match key mutations vector with genes table
+for (n in 1:dim(key_mutations)) {
+  for (row in 1:dim(gene_table)) {
+    if (key_mutations$mut_position[n] >= gene_table$start[row] &
+        key_mutations$mut_position[n] <= gene_table$end[row]) {
+          key_mutations$gene_name[n] <- gene_table$gene_name[row]
+    }
+  }
+}
+
+# Create table
+key_mutations %>%
+  knitr::kable(col.names = c("Mutation Position",
+                             "Gene Name"))
+
+```
+**Table 2**: Mutation positions and the genes they are found within as identified by Pachetti et al in all geographic locations [@pachetti2020emerging].
 
 # Figures
 
@@ -182,6 +206,24 @@ ggplot(isolation_source, aes(x = Isolation_source,
   theme_few()
 ```
 **Figure 3**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
+
+```{r number-of-common-mutations}
+# Create a bar graph that shows the number of samples of this dataset with
+# mutations at the positions identified by Pachetti et al.
+key_mutations_tallied <- stacked_vcfs %>%
+  subset(pos %in% key_mutations$mut_pos) %>%
+  group_by(pos) %>%
+  tally()
+
+key_mutations_tallied %>%
+  transform(pos = as.character(key_mutations_tallied$pos)) %>%
+  ggplot(aes(x = pos, y = n)) +
+    geom_col() +
+    labs(title = "Number of samples with specific mutation",
+         x = "Position number",
+         y = "Number of samples") +
+    scale_y_continuous(breaks = pretty_breaks())
+```
 
 
 
