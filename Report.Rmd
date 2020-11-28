@@ -215,8 +215,9 @@ key_mutations_tallied <- stacked_vcfs %>%
   group_by(pos) %>%
   tally()
 
+key_mutations_tallied$pos <- factor(key_mutations_tallied$pos, levels = key_mutations_tallied$pos)
+
 key_mutations_tallied %>%
-  transform(pos = as.character(key_mutations_tallied$pos)) %>%
   ggplot(aes(x = pos, y = n)) +
     geom_col() +
     labs(title = "Number of samples with specific mutation",
