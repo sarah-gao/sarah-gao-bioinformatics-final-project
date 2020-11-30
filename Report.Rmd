@@ -57,6 +57,8 @@ library("ggthemes")
 library("oxcovid19")
 library("tidyr")
 library("scales")
+library("readr")
+library("stringr")
 
 # this loads all function files in the code/functions directory
 function_paths <- list.files("code/functions", full.names = TRUE)
@@ -225,7 +227,50 @@ key_mutations_tallied %>%
          y = "Number of samples") +
     scale_y_continuous(breaks = pretty_breaks())
 ```
+**Figure 4**: Number of samples from this specific Beijing data set with common mutations found in samples globally.
+
+```{r beijing-confirmed-cases}
+# Create a plot showing the number of confirmed cases over time
+
+# Create a connection to the Oxford COVID-19 database
+con <- connect_oxcovid19()
+
+# Access China's epidemiology table
+epi_tab <- get_table(con = con, tbl_name = "epidemiology")
+chn_epi_tab <- dplyr::filter(.data = epi_tab, countrycode == "CHN")
+
+# Filter table by Beijing only
+beijing_epi_tab <- chn_epi_tab %>%
+  filter(adm_area_1 == "Beijing")
+
+# Retrieve remote table data into R
+dplyr::collect(beijing_epi_tab)
+
+# Create plot of confirmed cases
+beijing_epi_tab %>%
+  select(date, adm_area_1, confirmed) %>%
+  ggplot(aes(x = date,
+             y = confirmed)) +
+  geom_line()
 
 
+
+```
+**Figure 5**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
+
+```{r china-new-cases-daily}
+# Create a plot showing the number of daily new cases in China
+chn_ourworld_tab %>%
+  select(date, new_cases, new_cases_smoothed) %>%
+  ggplot() +
+  geom_line(aes(x = date,
+                y = new_cases, color = "red")) +
+  geom_line(aes(x = date,
+                y = new_cases_smoothed, color = "blue")) +
+  scale_color_discrete(name = "Y series", 
+                       labels = str_wrap(c("Daily New Cases", 
+                                  "Daily New Cases Smoothed Over 7 Days"), 
+                                  width = 20))
+```
 
 # Sources Cited
