@@ -47,6 +47,12 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
         !is.na(tidied_vcf$gt$Indiv[1])) {
           stop("The files don't seem to be named with SRR/ERR/DRR ids.")
     }
+    
+    # Show a message in case of empty file but keep running
+    if (!is.na(tidied_vcf$gt$Indiv[1])) {
+      print(paste("FYI: The file", tools::file_path_sans_ext(basename(vcf_file)),
+            "is empty."))
+    }
 
     # Pull strain name out of first part of filename, assuming SRR ID
     sample_name <- stringr::str_extract(string = tidied_vcf$gt$Indiv[1],
