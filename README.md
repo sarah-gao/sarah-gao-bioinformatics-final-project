@@ -18,5 +18,11 @@ country.
 
 Change Log:
 
+* 2020-11-30: Added plots for confirmed cases in Beijing, daily cases in China, and effective reproductive rate in China. Added more background information.
+* 2020-11-28: Finished adding plot showing number of samples with known mutations.
+* 2020-11-22: Fixed check in `parse_and_tidy` function to account for null values in case of empty vcf file. Added plots for proportional SNPs and isolation sources.
+* 2020-11-20: Start creating figures for R markdown report.
+* 2020-11-19: Finished processing data!
+* 2020-11-18: Fixed prefetch steps and incorporated into Makefile and bash processing scripts.
 * 2020-11-17: Added SRA run table with Beijing data sets. Added prefetch step throughout pipeline in `01_setup_directories.sh` and `01_download_fastq.sh` bash scripts as well as in the `Makefile` clean command. Trying to work out fasterq-dump error when downloading the entire data set.
 * 2020-11-16: Updated README with project goal.
