@@ -34,27 +34,37 @@ Previous studies showed that a mutation in the gene encoding the S spike protein
 
 # Methods
 
-This report used a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University [@du2020] via three isolation sources: feces, pharyngeal swab, and sputum (Figure 1). The 
+## SARS-CoV-2 Sequence Data
+I downloaded the Beijing dataset from the [NCBI Database](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA667180&o=acc_s%3Aa) on Wednesday November 18th, 2020. This dataset was found originally by looking through [NCBI's SRA BioProjects](https://www.ncbi.nlm.nih.gov/bioproject/?term=(txid2697049[Organism:noexp]%20NOT%200[Mbases])%20AND%20bioproject_sra[filter]%20NOT%20bioproject_gap[filter]) and filtering for Illumina sequences only. The 102 samples in the dataset were taken from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University between January 29th and April 17th, 2020 via three isolation sources: feces, pharyngeal swab, and sputum (Figure 1) [@du2020].
 
-Note: When downloading the data set, an additional, smaller fastq file is included without the usual "_1" or "_2" suffix. These have been removed along with the reverse reads.
+I then downloded the SARS-CoV-2 Wuhan reference genome from [NCBI](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&db=nuccore&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=100000000) and the respective [annotation `gff`](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz). When downloading the dataset, an additional, smaller `fastq` file was included without the usual "_1" or "_2" suffix. For the purposes of this report, these have been removed along with all reverse reads.
 
-See the set of tutorials on the [vcfR package website](https://knausb.github.io/vcfR_documentation/index.html).
+## Sequence Quality
+I ran FastQC on each downloaded `fastq` file to get a summary of the quality of each sample [@andrew2010fastqc]. Overall, all the samples passed `fastqc` per base sequence quality and per sequence quality checks.
 
-You may also want to use any of a range of different COVID data packages and data sources:
+![An example of one sample's per base sequence quality FastQC report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_base_seq_qual.png)
+*An example of one sample's FastQC quality report showing per base sequence quality.*
 
-* https://kjhealy.github.io/covdata/
-* https://github.com/como-ph/oxcovid19
-* https://ropensci.org/blog/2020/10/20/searching-medrxivr-and-biorxiv-preprint-data/
-* https://covidtracking.com/data/api
-  * `readr::read_csv("https://api.covidtracking.com/v1/states/daily.csv")`
-* https://rt.live/
-  * `readr::read_csv("https://d14wlfuexuxgcm.cloudfront.net/covid/rt.csv")`
+![An example of one sample's FastQC per sequence quality scores report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_seq_qual.png)
+*The FastQC per sequence quality scores of the same sample.*
 
-## Subsections are ok too
+All samples had either a sequence length of 150bp or 76bp. Given the uniform distribution of the FastQC sequence length plot, one would assume that some processing had already occurred upstream to trim sequences of other lengths. It's possible, for example, that the sequencing machine itself threw out fragments during processing so as to keep only full-length reads.
+
+![An example of one sample's FastQC sequence length distribution](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_seq_length_distr.png)
+*The sequence length distribution report of the same sample.*
+
+## Data Processing
+
+I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped.
+
+I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants.
+
 
 # Results and Discussion
 
 This variant has a change within the Spike protein encoding gene, changing amino acid D614G to G614. This increased prevalence arose at multiple geographic levels globally, suggesting that the G614 variant confers an evolutionary advantage over the previously established strain and has been positively selected for. 
+
+G614 variants based on 3 distinguishing mutations in coding regions: C14408T (RdRp), A23403G (Spike, makes D614G amino acid change), C3037T (silent) [@korber2020]
 
 ```{r load-packages-and-functions}
 library("vcfR")
@@ -152,12 +162,6 @@ ggplot(isolation_source, aes(x = Isolation_source,
   theme_few()
 ```
 **Figure 1**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
-
-```{r quality-scores}
-# Create a plot showing the quality scores of the reads
-
-
-```
 
 Here we see the SNP counts in each gene region and that indeed, there are more SNPs in the larger S and N genes.
 ```{r SNPS-by-genes}
