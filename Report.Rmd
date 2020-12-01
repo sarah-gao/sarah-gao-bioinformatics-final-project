@@ -1,5 +1,5 @@
 ---
-title: "Tracking SARS-CoV-2 mutation and transmission rates in Beijing 11 months after Wuhan onset"
+title: "Identifying SARS-CoV-2 mutations in Beijing and transmission rates in China in 2020"
 author: "Sarah Gao"
 date: "November 19, 2020"
 output:
@@ -27,9 +27,14 @@ In late 2019, the first cases of Severe Acute Respiratory Syndrome Coronavirus 2
 
 Researchers around the globe have identified key mutations that are predominant in different locations, indicating that the virus has been evolving over time to form location-specific strains. This report examined how the SARS-CoV-2 virus has mutated within and affected the population in Beijing, China. Beijing is approximately 717 miles (~1,153 km) from Wuhan, a city in Hubei province that was the center of the first known COVID-19 cases first reported in December 2019.
 
-This report used a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al [@du2020] took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University. 
+The goal of this report was to identify mutations of the SARS-CoV-2 virus found in samples taken from positive patients in a Beijing hospital, compare them with known mutations identified by previous researchers, and analyze data on China's response to the virus at a national level. I used a pipeline written in bash to process the sequence data and identify variants from the reference Wuhan genome. I called out specifically variants at positions that are commonly found in samples around the world in order to examine how Beijing's strain may have mutated since the virus first emerged [@pachetti2020][@vanDorp2020].
+
+Previous studies showed that a mutation in the gene encoding the S spike protein has created a SARS-CoV-2 variant that has become the most prevalent form in many geographies, suggesting that this strain could have an evolutionary advantage [@korber2020]. While there has been no definitive understanding in how known mutations in the virus affect the virus' transmission or infection capacity, it is certainly an important area of study to understand how the virus will change over time, and in turn, how we may more effectively combat it. Analyses of this Beijing dataset show that there were no more S gene mutations than one would expect assuming equal rates of mutation across the genome. However, there are many other factors that can affect how a region copes with the ever-changing COVID-19 pandemic other than the potential outcomes of viral mutations, including population and government responses. I found that the number of cases across the country as a whole has reduced dramatically since spring of 2020, despite fluctuating effective reproduction rates, as the Chinese government has reacted quickly and strictly in response to spikes. 
+
 
 # Methods
+
+This report used a data set taken from sampling patients in Beijing with positive COVID-19 diagnoses and includes some variant analysis [@koyama2020variant]. Du et al took these samples from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University [@du2020] via three isolation sources: feces, pharyngeal swab, and sputum (Figure 1). The 
 
 Note: When downloading the data set, an additional, smaller fastq file is included without the usual "_1" or "_2" suffix. These have been removed along with the reverse reads.
 
@@ -48,6 +53,8 @@ You may also want to use any of a range of different COVID data packages and dat
 ## Subsections are ok too
 
 # Results and Discussion
+
+This variant has a change within the Spike protein encoding gene, changing amino acid D614G to G614. This increased prevalence arose at multiple geographic levels globally, suggesting that the G614 variant confers an evolutionary advantage over the previously established strain and has been positively selected for. 
 
 ```{r load-packages-and-functions}
 library("vcfR")
@@ -104,10 +111,10 @@ gene_table_lengths %>%
 
 ```{r mutations-by-gene}
 # Create a table to show the mutation positions and associated genes identified
-# by Pachetti et al (2020)
+# by Pachetti et al. (2020)
 key_mutations <- data.frame("mut_position" = c(
-  1397, 2891, 3036, 8782, 11083, 14408, 17746, 17857, 18060, 23403, 
-  28144, 26143, 28881), "gene_name" = (NA))
+  1397, 2891, 3036, 3037, 8782, 11083, 14408, 17746, 17747, 17857, 18060, 23403, 
+  26143, 26144, 28144, 28881), "gene_name" = (NA))
 
 # Match key mutations vector with genes table
 for (n in 1:dim(key_mutations)) {
@@ -125,9 +132,32 @@ key_mutations %>%
                              "Gene Name"))
 
 ```
-**Table 2**: Mutation positions and the genes they are found within as identified by Pachetti et al in all geographic locations [@pachetti2020emerging].
+**Table 2**: Mutation positions and the genes they are found within as identified by Pachetti et al in all geographic locations [@pachetti2020emerging]. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
 # Figures
+
+```{r samples-by-isolation-source}
+# Create a bar graph showing the distribution of sample isolation sources
+isolation_source <- vcf_with_metadata %>%
+  group_by(Isolation_source) %>%
+  tally()
+
+ggplot(isolation_source, aes(x = Isolation_source,
+                              y = n)) +
+  geom_col() +
+  labs(title = "Number of Samples per Isolation Source",
+       x = "Isolation Source",
+       y = "Number of Samples") +
+  scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum")) +
+  theme_few()
+```
+**Figure 1**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
+
+```{r quality-scores}
+# Create a plot showing the quality scores of the reads
+
+
+```
 
 Here we see the SNP counts in each gene region and that indeed, there are more SNPs in the larger S and N genes.
 ```{r SNPS-by-genes}
@@ -149,6 +179,7 @@ ggplot(unique_snps, aes(x = gene,
       theme_few() # get rid of the grey background
 ```
 **Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
+
 
 ```{r variants-by-percentage}
 # Create a plot that compares the number of SNPs found in each gene with the
@@ -192,22 +223,6 @@ ggplot(unique_snps_per, aes(fill = expect_v_actual,
 ```
 **Figure 2**: Comparison of expected SNP counts and observed SNP counts based on equal rate of mutation across all genes.
 
-```{r samples-by-isolation-source}
-# Create a bar graph showing the distribution of sample isolation sources
-isolation_source <- vcf_with_metadata %>%
-  group_by(Isolation_source) %>%
-  tally()
-
-ggplot(isolation_source, aes(x = Isolation_source,
-                              y = n)) +
-  geom_col() +
-  labs(title = "Number of Samples per Isolation Source",
-       x = "Isolation Source",
-       y = "Number of Samples") +
-  scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum")) +
-  theme_few()
-```
-**Figure 3**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
 
 ```{r number-of-common-mutations}
 # Create a bar graph that shows the number of samples of this dataset with
@@ -227,7 +242,7 @@ key_mutations_tallied %>%
          y = "Number of samples") +
     scale_y_continuous(breaks = pretty_breaks())
 ```
-**Figure 4**: Number of samples from this specific Beijing data set with common mutations found in samples globally.
+**Figure 4**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
 ```{r beijing-confirmed-cases}
 # Create a plot showing the number of confirmed cases over time
@@ -251,26 +266,45 @@ beijing_epi_tab %>%
   select(date, adm_area_1, confirmed) %>%
   ggplot(aes(x = date,
              y = confirmed)) +
-  geom_line()
-
-
-
+  geom_line(color = "#00BFC4")
 ```
 **Figure 5**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
 
 ```{r china-new-cases-daily}
 # Create a plot showing the number of daily new cases in China
-chn_ourworld_tab %>%
+chn_new_cases <- chn_ourworld_tab %>%
   select(date, new_cases, new_cases_smoothed) %>%
-  ggplot() +
-  geom_line(aes(x = date,
-                y = new_cases, color = "red")) +
-  geom_line(aes(x = date,
-                y = new_cases_smoothed, color = "blue")) +
-  scale_color_discrete(name = "Y series", 
-                       labels = str_wrap(c("Daily New Cases", 
-                                  "Daily New Cases Smoothed Over 7 Days"), 
-                                  width = 20))
+  pivot_longer(
+    cols = c("new_cases", "new_cases_smoothed"), 
+    names_to = "raw_v_smooth")
+
+ggplot(chn_new_cases, 
+       aes(x = date, y = value, color = raw_v_smooth)) +
+  geom_line() +
+  scale_color_discrete(labels = str_wrap(c("Daily New Cases", 
+                                "Daily New Cases (7-Day Smoothed)"), 
+                                width = 20)) +
+  theme(legend.title=element_blank())
 ```
+**Figure 6**: New daily confirmed cases over time in China. The red line represents the raw number of daily new cases whereas the blue line represents daily confirmed cases with 7-day smoothing.
+
+``` {r reproduction-rate-over-time}
+# Create a plot that shows the effective reproduction rate over time in China
+chn_ourworld_tab %>%
+  ggplot(aes(x = date,
+             y = reproduction_rate)) +
+  geom_line(color = "#00BFC4")
+```
+**Figure 7**: Effective reproduction rate of the SARS-CoV-2 virus in China over time.
+
+``` {r stringency-index-over-time}
+# Create a plot showing the stringency index, a measure of how stringent a
+# government's response is to the pandemic, over time in China
+chn_ourworld_tab %>%
+  ggplot(aes(x = date,
+             y = stringency_index)) +
+  geom_line(color = "#00BFC4")
+```
+**Figure 8**: The Chinese government's response to the pandemic measured by a stringency index over time. This index is based on 9 response indicators, including school and workplace closures, and is scaled from 0 to 100 with 100 being the strictest response [@owid2020].
 
 # Sources Cited
