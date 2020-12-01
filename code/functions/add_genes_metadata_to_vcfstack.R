@@ -8,7 +8,7 @@
 # it takes three parameters
 # the first is the output from the parse_tidy_and_stack_vcfs() function, which
 # is a data frame of stacked VCF data
-# the second is a path to an SRA RunTable file with ectra metadata; this file
+# the second is a path to an SRA RunTable file with extra metadata; this file
 # is generally downloaded directly from NCBI
 # the third is a data frame containing the start and end and names of genes in
 # the genome of interest
