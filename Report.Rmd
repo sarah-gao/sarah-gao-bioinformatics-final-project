@@ -9,7 +9,7 @@ output:
 csl: bioinformatics.csl
 bibliography: references.bib
 params:
-  gff_file_path: /data/sars_vcf_analysis/02_genome_reference/sars_refgenome_annotation.gff
+  gff_file_path: data/12_refgenome_annotation/sars_refgenome_annotation.gff
   vcf_dir_path: data/11_vcf_output_for_R
   sra_runtable_path: data/00_sra_runtable/SraRunTable_PRJNA667180.txt
 ---
@@ -45,12 +45,12 @@ I ran FastQC on each downloaded `fastq` file to get a summary of the quality of 
 
 &nbsp;
   
-![An example of one sample's per base sequence quality FastQC report](/data/images/SRR12768739_1_per_base_seq_qual.png)
+![An example of one sample's per base sequence quality FastQC report](data/images/SRR12768739_1_per_base_seq_qual.png)
 *An example of one sample's FastQC quality report showing per base sequence quality.*
   
 &nbsp;
 
-![An example of one sample's FastQC per sequence quality scores report](/data/images/SRR12768739_1_per_seq_qual.png)
+![An example of one sample's FastQC per sequence quality scores report](data/images/SRR12768739_1_per_seq_qual.png)
 *The FastQC per sequence quality scores of the same sample.*
 
 &nbsp;
@@ -59,7 +59,7 @@ All samples had either a sequence length of 150bp or 76bp. Given the uniform dis
   
 &nbsp;
 
-![An example of one sample's FastQC sequence length distribution](/data/images/SRR12768739_1_seq_length_distr.png)
+![An example of one sample's FastQC sequence length distribution](data/images/SRR12768739_1_seq_length_distr.png)
 *The sequence length distribution report of the same sample.*
 
 &nbsp;
@@ -174,8 +174,8 @@ key_mutations <- rbind(common_mutations, d614g_mutations) %>%
   arrange(mut_position)
 
 # Match key mutations vector with genes table
-for (n in 1:dim(key_mutations)) {
-  for (row in 1:dim(gene_table)) {
+for (n in 1:nrow(key_mutations)) {
+  for (row in 1:nrow(gene_table)) {
     if (key_mutations$mut_position[n] >= gene_table$start[row] &
         key_mutations$mut_position[n] <= gene_table$end[row]) {
           key_mutations$gene_name[n] <- gene_table$gene_name[row]
