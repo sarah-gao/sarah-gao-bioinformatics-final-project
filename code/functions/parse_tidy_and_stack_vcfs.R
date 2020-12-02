@@ -31,7 +31,7 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
   all_vcf <- matrix(NA, 0, 9)
 
   # Initialize empty files count
-  empty_files <- 0
+  # empty_files <- 0
   
   # Loop over files and append to bottom of matrix
   # Add value for strain ID to first column each time
@@ -52,11 +52,11 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
     }
     
     # Show a message in case of empty file but keep running
-    if (is.na(tidied_vcf$gt$Indiv[1])) {
-      print(paste("FYI: The file", basename(vcf_file),
-            "is empty."))
-      empty_files <- empty_files + 1
-    }
+    # if (is.na(tidied_vcf$gt$Indiv[1])) {
+    #  print(paste("FYI: The file", basename(vcf_file),
+    #        "is empty."))
+    #  empty_files <- empty_files + 1
+    #}
 
     # Pull strain name out of first part of filename, assuming SRR ID
     sample_name <- stringr::str_extract(string = tidied_vcf$gt$Indiv[1],
@@ -82,7 +82,7 @@ parse_tidy_and_stack_vcfs <- function(vcf_dir_path) {
   all_vcf$pos <- as.numeric(all_vcf$pos)
   
   # Print summary of empty files
-  print(paste("There were", empty_files, "empty files."))
+  # print(paste("There were", empty_files, "empty files."))
 
   return(all_vcf)
 }
