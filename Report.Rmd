@@ -182,20 +182,38 @@ key_mutations %>%
 
 # Figures
 
+```{r set-plot-themes}
+theme_update(plot.title = element_text(face = "bold",
+                                       size = 16,
+                                       hjust = 0.5,
+                                       margin = margin(10, 0, 10, 0),
+                                       lineheight = 1.2),
+             axis.title.x = element_text(face = "bold",
+                                         vjust = -3),
+             axis.title.y = element_text(face = "bold",
+                                         vjust = 3),
+             plot.margin = margin(20, 40, 20, 20),
+             legend.title = element_text(face = "bold"),
+             legend.background = element_rect(color = "#E7E7E7"))
+```
+
 ```{r samples-by-isolation-source}
 # Create a bar graph showing the distribution of sample isolation sources
 isolation_source <- vcf_with_metadata %>%
   group_by(Isolation_source) %>%
   tally()
 
-ggplot(isolation_source, aes(x = Isolation_source,
+isolation_source_plot <- ggplot(isolation_source, aes(x = Isolation_source,
                               y = n)) +
-  geom_col() +
+  geom_col(fill = "#F8766D") +
   labs(title = "Number of Samples per Isolation Source",
        x = "Isolation Source",
        y = "Number of Samples") +
-  scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum")) +
-  theme_few()
+  scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum"))
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = isolation_source_plot,
+       filename = "output/figures/isolation_source_plot.png")
 ```
 
 **Figure 1**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
@@ -228,16 +246,20 @@ unique_snps_per <- unique_snps_per %>%
 )
 
 # Create a grouped bar graph comparing expected vs actual SNP counts
-ggplot(unique_snps_per, aes(fill = expect_v_actual,
+exp_v_obs_plot <- ggplot(unique_snps_per, aes(fill = expect_v_actual,
                             x = gene,
                             y = snp_values)) +
       geom_col(position = "dodge") +
-      labs(title = "Count of Distinct SNPs in Named SARS-CoV-2 Genes",
+      labs(title = paste("Count of Distinct SNPs in \n",
+           "Named SARS-CoV-2 Genes"),
           x = "Gene Name",
           y = "SNP Values") +
-  scale_fill_discrete(name = "Legend", labels = c("Expected counts",
-                                                  "Observed counts")) +
-      theme_few()
+  theme(legend.title = element_blank()) +
+  scale_fill_discrete(labels = c("Expected counts", "Observed counts"))
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = exp_v_obs_plot,
+       filename = "output/figures/exp_v_obs_plot.png")
   
 ```
 **Figure 2**: Comparison of expected SNP counts and observed SNP counts based on equal rate of mutation across all genes.
@@ -264,7 +286,7 @@ key_mutations_all <- merge(
 key_mutations_all$pos <- factor(
   key_mutations_all$pos, levels = key_mutations_all$pos)
 
-key_mutations_all %>%
+key_mutations_plot <- key_mutations_all %>%
   ggplot(aes(x = pos, y = n)) +
     geom_col(aes(fill = type)) +
     labs(title = "Number of Samples with Common Mutations",
@@ -272,11 +294,15 @@ key_mutations_all %>%
          y = "Number of Sequences",
          fill = "Associated Strain") +
     scale_y_continuous(breaks = pretty_breaks())
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = key_mutations_plot,
+       filename = "output/figures/key_mutations_plot.png")
 ```
 **Figure 3**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
 ```{r beijing-confirmed-cases}
-# Create a plot showing the number of confirmed cases over time
+# Create a plot showing the total number of confirmed cases over time
 
 # Create a connection to the Oxford COVID-19 database
 con <- connect_oxcovid19()
@@ -290,7 +316,7 @@ beijing_epi_tab <- chn_epi_tab %>%
   filter(adm_area_1 == "Beijing")
 
 # Create plot of confirmed cases
-beijing_epi_tab %>%
+beijing_total_confirmed_plot <- beijing_epi_tab %>%
   select(date, adm_area_1, confirmed) %>%
   collect(beijing_epi_tab) %>%
   ggplot(aes(x = date,
@@ -301,6 +327,10 @@ beijing_epi_tab %>%
          "Total Number of Confirmed Cases of COVID-19 in Beijing Over Time") +
   geom_line(color = "#00BFC4") +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = beijing_total_confirmed_plot,
+       filename = "output/figures/beijing_total_confirmed_plot.png")
 ```
 **Figure 4**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
 
@@ -312,7 +342,7 @@ chn_new_cases <- chn_ourworld_tab %>%
     cols = c("new_cases", "new_cases_smoothed"), 
     names_to = "raw_v_smooth")
 
-ggplot(chn_new_cases, 
+china_daily_cases_plot <- ggplot(chn_new_cases, 
        aes(x = date, y = value, color = raw_v_smooth)) +
   geom_line() +
   labs(x = "Date",
@@ -323,26 +353,34 @@ ggplot(chn_new_cases,
                                 width = 20)) +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
   theme(legend.title=element_blank())
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = china_daily_cases_plot,
+       filename = "output/figures/china_daily_cases_plot.png")
 ```
 **Figure 5**: New daily confirmed cases over time in China. The red line represents the raw number of daily new cases whereas the blue line represents daily confirmed cases with 7-day smoothing.
 
 ``` {r reproduction-rate-over-time}
 # Create a plot that shows the effective reproduction rate over time in China
-chn_ourworld_tab %>%
+china_r_rate <- chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = reproduction_rate)) +
-  geom_line(color = "#00BFC4") +
+  geom_line(color = "#F8766D") +
   labs(x = "Date",
        y = "Effective Reproduction Rate (R)",
        title = "Effective Reproduction Rate (R) of SARS-CoV-2 in China") +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = china_r_rate,
+       filename = "output/figures/china_r_rate.png")
 ```
 **Figure 6**: Effective reproduction rate of the SARS-CoV-2 virus in China over time. R indicates how many new infections one infected person causes on average. If R is below 1, the number of cases will gradually decrease whereas if it's greater than 1, cases will increase.
 
 ``` {r stringency-index-over-time}
 # Create a plot showing the stringency index, a measure of how stringent a
 # government's response is to the pandemic, over time in China
-chn_ourworld_tab %>%
+china_stringency_plot <- chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = stringency_index)) +
   geom_line(color = "#00BFC4") +
@@ -351,6 +389,10 @@ chn_ourworld_tab %>%
        title = "The Chinese Government's Response to the COVID-19 Pandemic") +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
   scale_y_continuous(limits = c(NA,100))
+
+# Save figure to the output figures directory as a .png
+ggsave(plot = china_stringency_plot,
+       filename = "output/figures/china_stringency_plot.png")
 ```
 **Figure 7**: The Chinese government's response to the pandemic measured by a stringency index over time. This index is compositely based on 9 response indicators, including school and workplace closures, contact tracing, and face coverings, and is scaled from 0 to 100 with 100 being the strictest response [@owid2020].
 
