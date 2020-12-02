@@ -41,39 +41,13 @@ I downloaded the Beijing dataset from the [NCBI Database](https://www.ncbi.nlm.n
 I then downloaded the SARS-CoV-2 Wuhan reference genome from [NCBI](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&db=nuccore&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=100000000) and the respective [annotation `gff`](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz). When downloading the dataset, an additional, smaller `fastq` file was included without the usual "_1" or "_2" suffix. For the purposes of this report, these have been removed along with all reverse reads.
 
 ## Sequence Data Quality
-I ran FastQC on each downloaded `fastq` file to get a summary of the quality of each sample [@andrew2010fastqc]. Overall, all the samples passed `fastqc` per base sequence quality and per sequence quality checks.
-
-&nbsp;
-  
-![An example of one sample's per base sequence quality FastQC report](data/images/SRR12768739_1_per_base_seq_qual.png)
-*An example of one sample's FastQC quality report showing per base sequence quality.*
-  
-&nbsp;
-
-![An example of one sample's FastQC per sequence quality scores report](data/images/SRR12768739_1_per_seq_qual.png)
-*The FastQC per sequence quality scores of the same sample.*
-
-&nbsp;
-  
-All samples had either a sequence length of 150bp or 76bp. Given the uniform distribution of the FastQC sequence length plot, one would assume that some processing had already occurred upstream to trim sequences of other lengths. It's possible, for example, that the sequencing machine itself threw out fragments during processing so as to keep only full-length reads.
-  
-&nbsp;
-
-![An example of one sample's FastQC sequence length distribution](data/images/SRR12768739_1_seq_length_distr.png)
-*The sequence length distribution report of the same sample.*
-
-&nbsp;
-  
-
-&nbsp;
+I ran FastQC on each downloaded `fastq` file to get a summary of the quality of each sample [@andrew2010fastqc]. Overall, all the samples passed `fastqc` per base sequence quality and per sequence quality checks (Images 1-3). All samples had either a sequence length of 150bp or 76bp. Given the uniform distribution of the FastQC sequence length plot, one would assume that some processing had already occurred upstream to trim sequences of other lengths. It's possible, for example, that the sequencing machine itself threw out fragments during processing so as to keep only full-length reads.
 
 ## Data Processing
 
 I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped. Of the 102 sequences, 73 did not clear the Trimmomatic step due to having a length of 76bp and I proceeded with 29 sequences.
 
 I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants. 
-
-&nbsp;
 
 ## R Analyses
 
@@ -114,7 +88,45 @@ Interestingly, when we examine the effective reproduction rate (R) of the virus 
 The Chinese government's response to the pandemic may help to partially explain China's current low case numbers. The government put relatively severe restrictions on movement from late January to early February. Other researchers have shown that within-city movement and R were highly correlated during this time, suggesting a high efficacy of this response [@ainslie2020]. A strong and prolonged government response throughout the summer may also partially account for the drop in new cases as well as the prolonged period with R < 1. This lends support to the idea that transmission of the virus throughout a region can be mitigated by a stronger government response and adherence to social distancing practices.
   
 \newpage
-  
+
+# Images
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r image-1, out.width="100%"}
+knitr::include_graphics("data/images/SRR12768739_1_per_base_seq_qual.png")
+```
+&nbsp;  
+**Image 1: An example of one sample's FastQC quality report showing per base sequence quality.**
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r image-2, out.width="100%"}
+knitr::include_graphics("data/images/SRR12768739_1_per_seq_qual.png")
+```
+&nbsp;  
+**Image 2: The FastQC per sequence quality scores of the same sample.**
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r image-3, out.width="100%"}
+knitr::include_graphics("data/images/SRR12768739_1_seq_length_distr.png",
+                        dpi = 360)
+```
+&nbsp;  
+**Image 3: The sequence length distribution report of the same sample.**
+
+\newpage
+
 ```{r load-packages-and-functions}
 library("vcfR")
 library("ggplot2")
@@ -152,6 +164,11 @@ vcf_with_metadata <- add_genes_metadata_to_vcfstack(
 
 # Tables
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r gene-lengths-table}
 # Creates a table to show the length of each gene using its start and end values
 gene_table_lengths <- gene_table %>%
