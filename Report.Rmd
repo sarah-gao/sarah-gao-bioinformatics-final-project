@@ -30,36 +30,48 @@ Researchers around the globe have identified key mutations that are predominant 
 The goal of this report was to identify mutations of the SARS-CoV-2 virus found in samples taken from positive patients in a Beijing hospital, compare them with known mutations identified by previous researchers, and analyze data on China's response to the virus at a national level. I used a pipeline written in bash to process the sequence data and identify variants from the reference Wuhan genome. I called out specifically variants at positions that are commonly found in samples around the world in order to examine how Beijing's strain may have mutated since the virus first emerged [@pachetti2020][@vanDorp2020].
 
 Previous studies showed that a mutation in the gene encoding the S spike protein has created a SARS-CoV-2 variant that has become the most prevalent form in many geographies, suggesting that this strain could have an evolutionary advantage [@korber2020]. While there has been no definitive understanding in how known mutations in the virus affect the virus' transmission or infection capacity, it is certainly an important area of study to understand how the virus will change over time, and in turn, how we may more effectively combat it. Analyses of this Beijing dataset show that there were no more S gene mutations than one would expect assuming equal rates of mutation across the genome. However, there are many other factors that can affect how a region copes with the ever-changing COVID-19 pandemic other than the potential outcomes of viral mutations, including population and government responses. I found that the number of cases across the country as a whole has reduced dramatically since spring of 2020, despite fluctuating effective reproduction rates, as the Chinese government has reacted quickly and strictly in response to spikes. 
-
-
+  
+\newpage  
+  
 # Methods
 
 ## SARS-CoV-2 Sequence Data
 I downloaded the Beijing dataset from the [NCBI Database](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA667180&o=acc_s%3Aa) on Wednesday November 18th, 2020. This dataset was found originally by looking through [NCBI's SRA BioProjects](https://www.ncbi.nlm.nih.gov/bioproject/?term=(txid2697049[Organism:noexp]%20NOT%200[Mbases])%20AND%20bioproject_sra[filter]%20NOT%20bioproject_gap[filter]) and filtering for Illumina sequences only. The 102 samples in the dataset were taken from SARS-CoV-2 positive patients at Beijing Ditan Hospital Capital Medical University between January 29th and April 17th, 2020 via three isolation sources: feces, pharyngeal swab, and sputum (Figure 1) [@du2020].
 
-I then downloded the SARS-CoV-2 Wuhan reference genome from [NCBI](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&db=nuccore&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=100000000) and the respective [annotation `gff`](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz). When downloading the dataset, an additional, smaller `fastq` file was included without the usual "_1" or "_2" suffix. For the purposes of this report, these have been removed along with all reverse reads.
+I then downloaded the SARS-CoV-2 Wuhan reference genome from [NCBI](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&db=nuccore&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=100000000) and the respective [annotation `gff`](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz). When downloading the dataset, an additional, smaller `fastq` file was included without the usual "_1" or "_2" suffix. For the purposes of this report, these have been removed along with all reverse reads.
 
 ## Sequence Data Quality
 I ran FastQC on each downloaded `fastq` file to get a summary of the quality of each sample [@andrew2010fastqc]. Overall, all the samples passed `fastqc` per base sequence quality and per sequence quality checks.
 
+&nbsp;
+  
 ![An example of one sample's per base sequence quality FastQC report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_base_seq_qual.png)
 *An example of one sample's FastQC quality report showing per base sequence quality.*
+  
+&nbsp;
 
 ![An example of one sample's FastQC per sequence quality scores report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_seq_qual.png)
 *The FastQC per sequence quality scores of the same sample.*
 
+&nbsp;
+  
 All samples had either a sequence length of 150bp or 76bp. Given the uniform distribution of the FastQC sequence length plot, one would assume that some processing had already occurred upstream to trim sequences of other lengths. It's possible, for example, that the sequencing machine itself threw out fragments during processing so as to keep only full-length reads.
+  
+&nbsp;
 
 ![An example of one sample's FastQC sequence length distribution](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_seq_length_distr.png)
 *The sequence length distribution report of the same sample.*
 
+&nbsp;
+  
 ## Data Processing
 
 I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped. Of the 102 sequences, 73 did not clear the Trimmomatic steps and I proceeded with 29 sequences.
 
 I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants. 
-
-
+  
+\newpage
+  
 # Results and Discussion
 
 ## Beijing Sequence Data
@@ -82,15 +94,16 @@ I mapped the Beijing dataset's variants to these mutation positions and found th
 
 While Korber et al. hypothesized that the increased frequency of the G614 strain was due to its higher rate of transmission, there is still no clear evidence that this variant is any more infectious or transmissible than the D614 strain [@grubaugh2020][@vanDorp2020]. It is evident, however, that transmission rates are affected by the behavior of the regional governments and populace.
 
-China was the first country to report cases of SARS-CoV-2 infections and had spikes in cases much earlier on before the virus spread to other countries. In Figure 4, we can see how Beijing experienced a large spike in confirmed cases in January and February, a smaller one in March, and then another large one in June before plateauing. The large spike in January-February followed a national trend based on daily new case rates in China (Figure 5). China as a whole experienced a smaller spike in July as well.
+China was the first country to report cases of SARS-CoV-2 infections and had spikes in cases much earlier on before the virus spread to other countries. In Figure 4, we can see how Beijing experienced a large spike in confirmed cases in January and February, a smaller one in March, and then another large one in June before plateauing [@mahdi2020oxcovid]. The large spike in January-February followed a national trend based on daily new case rates in China (Figure 5) [@owid2020]. China as a whole experienced a smaller spike in July as well.
 
 Interestingly, when we examine the effective reproduction rate (R) of the virus throughout the year, the spikes in R seem to correlate with the spikes in case numbers we found in Beijing and across the whole country (Figure 6). Since the last spike in July, the R value has remained mostly under 1, correlating with the gradual decrease in case numbers seen in August.
 
 ### Government Response
 
 The Chinese government's response to the pandemic may help to partially explain China's current low case numbers. The government put relatively severe restrictions on movement from late January to early February. Other researchers have shown that within-city movement and R were highly correlated during this time, suggesting a high efficacy of this response [@ainslie2020]. A strong and prolonged government response throughout the summer may also partially account for the drop in new cases as well as the prolonged period with R < 1. This lends support to the idea that transmission of the virus throughout a region can be mitigated by a stronger government response and adherence to social distancing practices.
-
-
+  
+\newpage
+  
 ```{r load-packages-and-functions}
 library("vcfR")
 library("ggplot2")
@@ -144,6 +157,11 @@ gene_table_lengths %>%
 
 **Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r mutations-by-gene}
 # Creates a table to show common mutations
 common_mutations <- data.frame("mut_position" = c(
@@ -178,23 +196,47 @@ key_mutations %>%
 
 ```
 
-**Table 2**: Mutation positions and the genes they are found within [@pachetti2020emerging][@korber2020][@yang2020]. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
-
+**Table 2**: Mutation positions and the genes they are found within [@pachetti2020][@korber2020][@yang2020]. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
+  
+\newpage
+  
 # Figures
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r set-plot-themes}
 theme_update(plot.title = element_text(face = "bold",
-                                       size = 16,
+                                       size = 12,
                                        hjust = 0.5,
                                        margin = margin(10, 0, 10, 0),
                                        lineheight = 1.2),
-             axis.title.x = element_text(face = "bold",
+             axis.title.x = element_text(size = 10,
+                                         face = "bold",
                                          vjust = -3),
-             axis.title.y = element_text(face = "bold",
+             axis.text.x = element_text(size = 8,
+                                        color = "#808080"),
+             axis.title.y = element_text(size = 10,
+                                         face = "bold",
                                          vjust = 3),
-             plot.margin = margin(20, 40, 20, 20),
-             legend.title = element_text(face = "bold"),
-             legend.background = element_rect(color = "#E7E7E7"))
+             axis.text.y = element_text(size = 8,
+                                        color = "#808080"),
+             plot.margin = margin(20, 30, 40, 30),
+             legend.position = "bottom",
+             legend.title = element_text(size = 6, 
+                                         face = "bold", 
+                                         color = "#808080",
+                                         margin = margin(r = 10, unit = "pt")),
+             legend.text = element_text(size = 6, 
+                                        color = "#808080",
+                                        margin = margin(r = 10, unit = "pt")),
+             legend.background = element_rect(color = "#E7E7E7"),
+             legend.margin = margin(5, 5, 5, 5),
+             legend.box.spacing = unit(20, "pt"),
+             legend.key.size = unit(8, "pt")
+             )
 ```
 
 ```{r samples-by-isolation-source}
@@ -203,7 +245,7 @@ isolation_source <- vcf_with_metadata %>%
   group_by(Isolation_source) %>%
   tally()
 
-isolation_source_plot <- ggplot(isolation_source, aes(x = Isolation_source,
+ggplot(isolation_source, aes(x = Isolation_source,
                               y = n)) +
   geom_col(fill = "#F8766D") +
   labs(title = "Number of Samples per Isolation Source",
@@ -212,15 +254,31 @@ isolation_source_plot <- ggplot(isolation_source, aes(x = Isolation_source,
   scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum"))
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = isolation_source_plot,
-       filename = "output/figures/isolation_source_plot.png")
+# ggsave(plot = isolation_source_plot,
+#       filename = "output/figures/isolation_source_plot.png")
 ```
-
+  
 **Figure 1**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r expected-v-observed-variants}
 # Create a plot that compares the number of SNPs found in each gene with the
 # expected number of SNPs if equal rates of mutation across all genes
+
+# Creates dataframe to store unique SNP counts
+unique_snps <- vcf_with_metadata %>%
+  filter(!is.na(gene)) %>%
+  group_by(gene, pos) %>%
+  tally() %>%
+  group_by(gene) %>%
+  tally()
+
 # Create vector with percentages of gene length to total genome length
 total_genes_length <- sum(gene_table_lengths$length)
 unique_snps_per <- matrix(NA, 0, 3)
@@ -234,19 +292,18 @@ gene_per <- gene_table_lengths %>%
 gene_per <- gene_per[order(gene_per$gene_name),]
 
 # Add a column in unique SNPs dataframe that shows percentage
-total_snps = sum(unique_snps$observed_snps)
+total_snps = sum(unique_snps$n)
 unique_snps_per <- cbind(unique_snps,
                          'percentage_of_total_genes' = gene_per$percentage,
                          'expected_snps'= total_snps*gene_per$percentage)
 unique_snps_per <- unique_snps_per %>%
   pivot_longer(
-  cols = c('observed_snps', 'expected_snps'),
+  cols = c('n', 'expected_snps'),
   names_to = "expect_v_actual",
-  values_to = "snp_values"
-)
+  values_to = "snp_values")
 
 # Create a grouped bar graph comparing expected vs actual SNP counts
-exp_v_obs_plot <- ggplot(unique_snps_per, aes(fill = expect_v_actual,
+ggplot(unique_snps_per, aes(fill = expect_v_actual,
                             x = gene,
                             y = snp_values)) +
       geom_col(position = "dodge") +
@@ -254,17 +311,24 @@ exp_v_obs_plot <- ggplot(unique_snps_per, aes(fill = expect_v_actual,
            "Named SARS-CoV-2 Genes"),
           x = "Gene Name",
           y = "SNP Values") +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = c("Expected counts", "Observed counts"))
+      theme(legend.title = element_blank()) +
+      scale_fill_discrete(labels = c("Expected Counts", "Observed Counts"))
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = exp_v_obs_plot,
-       filename = "output/figures/exp_v_obs_plot.png")
+# ggsave(plot = exp_v_obs_plot,
+#       filename = "output/figures/exp_v_obs_plot.png")
   
 ```
+  
 **Figure 2**: Comparison of expected SNP counts and observed SNP counts based on equal rate of mutation across all genes.
 
-
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r number-of-common-mutations}
 # Create a bar graph that shows the number of samples of this dataset with
 # mutations at the positions identified by previous studies
@@ -286,21 +350,30 @@ key_mutations_all <- merge(
 key_mutations_all$pos <- factor(
   key_mutations_all$pos, levels = key_mutations_all$pos)
 
-key_mutations_plot <- key_mutations_all %>%
+key_mutations_all %>%
   ggplot(aes(x = pos, y = n)) +
     geom_col(aes(fill = type)) +
     labs(title = "Number of Samples with Common Mutations",
          x = "Position Number",
          y = "Number of Sequences",
          fill = "Associated Strain") +
+    scale_fill_discrete(labels = c("D614G", "Other")) +
     scale_y_continuous(breaks = pretty_breaks())
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = key_mutations_plot,
-       filename = "output/figures/key_mutations_plot.png")
+# ggsave(plot = key_mutations_plot,
+#       filename = "output/figures/key_mutations_plot.png")
 ```
-**Figure 3**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
+  
+**Figure 3**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al [@pachetti2020][@korber2020]. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r beijing-confirmed-cases}
 # Create a plot showing the total number of confirmed cases over time
 
@@ -316,33 +389,50 @@ beijing_epi_tab <- chn_epi_tab %>%
   filter(adm_area_1 == "Beijing")
 
 # Create plot of confirmed cases
-beijing_total_confirmed_plot <- beijing_epi_tab %>%
+beijing_epi_tab %>%
   select(date, adm_area_1, confirmed) %>%
   collect(beijing_epi_tab) %>%
   ggplot(aes(x = date,
              y = confirmed)) +
   labs(x = "Date",
        y = "Number of Confirmed Cases",
-       title = 
-         "Total Number of Confirmed Cases of COVID-19 in Beijing Over Time") +
+       title = paste("Total Number of Confirmed Cases of \n",
+       "COVID-19 in Beijing Over Time")) +
   geom_line(color = "#00BFC4") +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = beijing_total_confirmed_plot,
-       filename = "output/figures/beijing_total_confirmed_plot.png")
+# ggsave(plot = beijing_total_confirmed_plot,
+#       filename = "output/figures/beijing_total_confirmed_plot.png")
 ```
+  
 **Figure 4**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ```{r china-new-cases-daily}
-# Create a plot showing the number of daily new cases in China
+# Create a plot showing the number of daily new cases in China using Our World
+# in Data dataset
+
+# Get data from Our World in Data
+ourworld_epi <- read_csv(
+  "https://covid.ourworldindata.org/data/owid-covid-data.csv")
+
+chn_ourworld_tab <- ourworld_epi %>%
+  filter(location == "China")
+
 chn_new_cases <- chn_ourworld_tab %>%
   select(date, new_cases, new_cases_smoothed) %>%
   pivot_longer(
     cols = c("new_cases", "new_cases_smoothed"), 
     names_to = "raw_v_smooth")
 
-china_daily_cases_plot <- ggplot(chn_new_cases, 
+ggplot(chn_new_cases, 
        aes(x = date, y = value, color = raw_v_smooth)) +
   geom_line() +
   labs(x = "Date",
@@ -355,14 +445,22 @@ china_daily_cases_plot <- ggplot(chn_new_cases,
   theme(legend.title=element_blank())
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = china_daily_cases_plot,
-       filename = "output/figures/china_daily_cases_plot.png")
+# ggsave(plot = china_daily_cases_plot,
+#       filename = "output/figures/china_daily_cases_plot.png")
 ```
+  
 **Figure 5**: New daily confirmed cases over time in China. The red line represents the raw number of daily new cases whereas the blue line represents daily confirmed cases with 7-day smoothing.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ``` {r reproduction-rate-over-time}
 # Create a plot that shows the effective reproduction rate over time in China
-china_r_rate <- chn_ourworld_tab %>%
+chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = reproduction_rate)) +
   geom_line(color = "#F8766D") +
@@ -372,15 +470,23 @@ china_r_rate <- chn_ourworld_tab %>%
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = china_r_rate,
-       filename = "output/figures/china_r_rate.png")
+# ggsave(plot = china_r_rate,
+#       filename = "output/figures/china_r_rate.png")
 ```
+  
 **Figure 6**: Effective reproduction rate of the SARS-CoV-2 virus in China over time. R indicates how many new infections one infected person causes on average. If R is below 1, the number of cases will gradually decrease whereas if it's greater than 1, cases will increase.
 
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  
 ``` {r stringency-index-over-time}
 # Create a plot showing the stringency index, a measure of how stringent a
 # government's response is to the pandemic, over time in China
-china_stringency_plot <- chn_ourworld_tab %>%
+chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = stringency_index)) +
   geom_line(color = "#00BFC4") +
@@ -391,9 +497,12 @@ china_stringency_plot <- chn_ourworld_tab %>%
   scale_y_continuous(limits = c(NA,100))
 
 # Save figure to the output figures directory as a .png
-ggsave(plot = china_stringency_plot,
-       filename = "output/figures/china_stringency_plot.png")
+# ggsave(plot = china_stringency_plot,
+#       filename = "output/figures/china_stringency_plot.png")
 ```
+  
 **Figure 7**: The Chinese government's response to the pandemic measured by a stringency index over time. This index is compositely based on 9 response indicators, including school and workplace closures, contact tracing, and face coverings, and is scaled from 0 to 100 with 100 being the strictest response [@owid2020].
-
+  
+\newpage
+  
 # Sources Cited
