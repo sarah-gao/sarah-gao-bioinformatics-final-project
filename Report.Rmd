@@ -225,11 +225,11 @@ theme_update(plot.title = element_text(face = "bold",
                                         color = "#808080"),
              plot.margin = margin(20, 30, 40, 30),
              legend.position = "bottom",
-             legend.title = element_text(size = 6, 
-                                         face = "bold", 
+             legend.title = element_text(size = 6,
+                                         face = "bold",
                                          color = "#808080",
                                          margin = margin(r = 10, unit = "pt")),
-             legend.text = element_text(size = 6, 
+             legend.text = element_text(size = 6,
                                         color = "#808080",
                                         margin = margin(r = 10, unit = "pt")),
              legend.background = element_rect(color = "#E7E7E7"),
@@ -289,16 +289,16 @@ gene_per <- gene_table_lengths %>%
   select(gene_name, length, percentage)
 
 # Reorder percentages dataframe by gene name to match
-gene_per <- gene_per[order(gene_per$gene_name),]
+gene_per <- gene_per[order(gene_per$gene_name), ]
 
 # Add a column in unique SNPs dataframe that shows percentage
-total_snps = sum(unique_snps$n)
+total_snps <- sum(unique_snps$n)
 unique_snps_per <- cbind(unique_snps,
-                         'percentage_of_total_genes' = gene_per$percentage,
-                         'expected_snps'= total_snps*gene_per$percentage)
+                         "percentage_of_total_genes" = gene_per$percentage,
+                         "expected_snps" = total_snps * gene_per$percentage)
 unique_snps_per <- unique_snps_per %>%
   pivot_longer(
-  cols = c('n', 'expected_snps'),
+  cols = c("n", "expected_snps"),
   names_to = "expect_v_actual",
   values_to = "snp_values")
 
@@ -429,20 +429,20 @@ chn_ourworld_tab <- ourworld_epi %>%
 chn_new_cases <- chn_ourworld_tab %>%
   select(date, new_cases, new_cases_smoothed) %>%
   pivot_longer(
-    cols = c("new_cases", "new_cases_smoothed"), 
+    cols = c("new_cases", "new_cases_smoothed"),
     names_to = "raw_v_smooth")
 
-ggplot(chn_new_cases, 
+ggplot(chn_new_cases,
        aes(x = date, y = value, color = raw_v_smooth)) +
   geom_line() +
   labs(x = "Date",
        y = "Number of New Cases",
        title = "Daily New Cases of COVID-19 in China per Day") +
-  scale_color_discrete(labels = str_wrap(c("Daily New Cases", 
-                                "Daily New Cases (7-Day Smoothed)"), 
+  scale_color_discrete(labels = str_wrap(c("Daily New Cases",
+                                "Daily New Cases (7-Day Smoothed)"),
                                 width = 20)) +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
-  theme(legend.title=element_blank())
+  theme(legend.title = element_blank())
 
 # Save figure to the output figures directory as a .png
 # ggsave(plot = china_daily_cases_plot,
@@ -494,7 +494,7 @@ chn_ourworld_tab %>%
        y = "Stringency Index",
        title = "The Chinese Government's Response to the COVID-19 Pandemic") +
   scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
-  scale_y_continuous(limits = c(NA,100))
+  scale_y_continuous(limits = c(NA, 100))
 
 # Save figure to the output figures directory as a .png
 # ggsave(plot = china_stringency_plot,
