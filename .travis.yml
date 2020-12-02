@@ -10,6 +10,7 @@ env:
   - LINTR_COMMENT_BOT=false
 before_install:
   - sudo apt-get -y install libudunits2-dev
+  - sudo apt-get -y install gdal-bin libgdal-dev
 r_github_packages:
   - jimhester/lintr
   - leffj/mctoolsr
