@@ -39,7 +39,7 @@ I downloaded the Beijing dataset from the [NCBI Database](https://www.ncbi.nlm.n
 
 I then downloded the SARS-CoV-2 Wuhan reference genome from [NCBI](https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=NC_045512.2&db=nuccore&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=100000000) and the respective [annotation `gff`](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz). When downloading the dataset, an additional, smaller `fastq` file was included without the usual "_1" or "_2" suffix. For the purposes of this report, these have been removed along with all reverse reads.
 
-## Sequence Quality
+## Sequence Data Quality
 I ran FastQC on each downloaded `fastq` file to get a summary of the quality of each sample [@andrew2010fastqc]. Overall, all the samples passed `fastqc` per base sequence quality and per sequence quality checks.
 
 ![An example of one sample's per base sequence quality FastQC report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_base_seq_qual.png)
@@ -55,16 +55,41 @@ All samples had either a sequence length of 150bp or 76bp. Given the uniform dis
 
 ## Data Processing
 
-I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped.
+I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped. Of the 102 sequences, 73 did not clear the Trimmomatic steps and I proceeded with 29 sequences.
 
-I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants.
+I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants. 
 
 
 # Results and Discussion
 
-This variant has a change within the Spike protein encoding gene, changing amino acid D614G to G614. This increased prevalence arose at multiple geographic levels globally, suggesting that the G614 variant confers an evolutionary advantage over the previously established strain and has been positively selected for. 
+## Beijing Sequence Data
 
-G614 variants based on 3 distinguishing mutations in coding regions: C14408T (RdRp), A23403G (Spike, makes D614G amino acid change), C3037T (silent) [@korber2020]
+### Number of Mutations
+
+By mapping the variants to the gene locations as identified by the Wuhan reference genome, I found that there were more SNPs in the samples in the N and S gene areas (Figure 2). However, if we examine the lengths of these genes, we find that the N and S genes are the longest (Table 1). To understand if there were indeed more mutations in these regions, I calculated the expected number of variants within each gene assuming equal rates of mutation based on their length proportional to the total length of all identified genes (Figure 2). From this, we can see that observed SNPs within the N gene is indeed higher than what we would expect with equal mutation rates. The S gene, on the other hand, actually had fewer variants than expected. Significance was not been calculated for these values.
+
+### Mapping Mutations
+
+Previous studies have identified positions at which mutations have been commonly found in samples taken around the world. Some have been found in specific geographic regions, suggesting regional strains with distinctive mutation patterns [@pachetti2020].
+
+One strain in particular has emerged in prominence around the world, usurping the previously dominant D614 strain. This increased prevalence arose at multiple geographic levels globally, suggesting that this variant confers an evolutionary advantage over the previously established strain and has been positively selected for. This variant has a change within the Spike protein encoding gene, changing amino acid D614 to G614 through a A-to-G mutation at position 23403. G614 variants almost always also have 3 other distinguishing mutations within coding regions: C14408T within the ORF1b gene that causes an amino acid change in RNA-dependent RNA polymerase (RdRp P323L), C3037T within ORF1a which is silent, and C241T in the 5' UTR [@korber2020][@yang2020][@vanDorp2020]. Table 2 shows these common mutations and which genes they're found in.
+
+I mapped the Beijing dataset's variants to these mutation positions and found that there were mutations characteristic of the D614G strain (Figure 3). Interestingly, the mutations characteristic of the D614G strain (241, 3037, 14408, and 23403) appeared with nearly the exact same frequency, with the exception being the mutation at 23403 having 6 occurrences rather than 5. This lends credence to the idea that these mutations occur in tandem and may serve as markers of the strain. That these have been found in samples from China also suggests that this variant may have become more prevalent despite the original strain of the Wuhan reference genome having already been previously established in the region. This is further supported by the work by Korber et al. examining the increased frequency of the D614G variant in Mainland China over time [@korber2020].
+
+## Epidemiology
+
+### Transmission Rates
+
+While Korber et al. hypothesized that the increased frequency of the G614 strain was due to its higher rate of transmission, there is still no clear evidence that this variant is any more infectious or transmissible than the D614 strain [@grubaugh2020][@vanDorp2020]. It is evident, however, that transmission rates are affected by the behavior of the regional governments and populace.
+
+China was the first country to report cases of SARS-CoV-2 infections and had spikes in cases much earlier on before the virus spread to other countries. In Figure 4, we can see how Beijing experienced a large spike in confirmed cases in January and February, a smaller one in March, and then another large one in June before plateauing. The large spike in January-February followed a national trend based on daily new case rates in China (Figure 5). China as a whole experienced a smaller spike in July as well.
+
+Interestingly, when we examine the effective reproduction rate (R) of the virus throughout the year, the spikes in R seem to correlate with the spikes in case numbers we found in Beijing and across the whole country (Figure 6). Since the last spike in July, the R value has remained mostly under 1, correlating with the gradual decrease in case numbers seen in August.
+
+### Government Response
+
+The Chinese government's response to the pandemic may help to partially explain China's current low case numbers. The government put relatively severe restrictions on movement from late January to early February. Other researchers have shown that within-city movement and R were highly correlated during this time, suggesting a high efficacy of this response [@ainslie2020]. A strong and prolonged government response throughout the summer may also partially account for the drop in new cases as well as the prolonged period with R < 1. This lends support to the idea that transmission of the virus throughout a region can be mitigated by a stronger government response and adherence to social distancing practices.
+
 
 ```{r load-packages-and-functions}
 library("vcfR")
@@ -105,7 +130,7 @@ vcf_with_metadata <- add_genes_metadata_to_vcfstack(
 # Tables
 
 ```{r gene-lengths-table}
-# An example table to show the length of each gene using its start and end
+# Creates a table to show the length of each gene using its start and end values
 gene_table_lengths <- gene_table %>%
   mutate(length = end - start) %>%
   select(gene_name, start, end, length)
@@ -117,14 +142,18 @@ gene_table_lengths %>%
                              "Length"))
 ```
 
-**Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome. Higher SNP counts in the S and N genes may be related to the larger size of these genes.
+**Table 1**: Gene names, locations, and lengths in the SARS-CoV-2 genome.
 
 ```{r mutations-by-gene}
-# Create a table to show the mutation positions and associated genes identified
-# by Pachetti et al. (2020)
-key_mutations <- data.frame("mut_position" = c(
-  1397, 2891, 3036, 3037, 8782, 11083, 14408, 17746, 17747, 17857, 18060, 23403, 
-  26143, 26144, 28144, 28881), "gene_name" = (NA))
+# Creates a table to show common mutations
+common_mutations <- data.frame("mut_position" = c(
+  1397, 2891, 3036, 8782, 11083, 17746, 17747, 17857, 18060,
+  26143, 26144, 28144, 28881), "gene_name" = (NA), "type" = "other")
+d614g_mutations <- data.frame("mut_position" = c(
+  241, 3037, 14408, 23403), "gene_name" = (NA), "type" = "d614g")
+
+key_mutations <- rbind(common_mutations, d614g_mutations) %>%
+  arrange(mut_position)
 
 # Match key mutations vector with genes table
 for (n in 1:dim(key_mutations)) {
@@ -136,13 +165,20 @@ for (n in 1:dim(key_mutations)) {
   }
 }
 
-# Create table
+# Append known gene names from articles
+key_mutations$gene_name[1] <- "5' UTR"
+key_mutations$gene_name[2:7] <- "ORF1a"
+key_mutations$gene_name[8:12] <- "ORF1b"
+
+# Make table
 key_mutations %>%
+  select(mut_position, gene_name) %>%
   knitr::kable(col.names = c("Mutation Position",
                              "Gene Name"))
 
 ```
-**Table 2**: Mutation positions and the genes they are found within as identified by Pachetti et al in all geographic locations [@pachetti2020emerging]. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
+
+**Table 2**: Mutation positions and the genes they are found within [@pachetti2020emerging][@korber2020][@yang2020]. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
 # Figures
 
@@ -161,33 +197,12 @@ ggplot(isolation_source, aes(x = Isolation_source,
   scale_x_discrete(labels = c("Feces", "Pharyngeal Swab", "Sputum")) +
   theme_few()
 ```
+
 **Figure 1**: Samples were isolated from, in order from most to fewest, sputum, fecal, and pharyngeal swab sources.
 
-Here we see the SNP counts in each gene region and that indeed, there are more SNPs in the larger S and N genes.
-```{r SNPS-by-genes}
-# Create a plot of unique SNP locations within each gene across all samples
-unique_snps <- vcf_with_metadata %>%
-  filter(!is.na(gene)) %>% # get rid of SNPs not in gene regions
-  group_by(gene, pos) %>%
-  tally() %>% # this gives a column n for the number of gene by position
-  group_by(gene) %>%
-  tally() %>% # this collapses that down to the number of unique SNP locations
-  rename(observed_snps = n)
-
-ggplot(unique_snps, aes(x = gene,
-                        y = observed_snps)) +
-      geom_col() +
-      labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
-          x = "Gene Name",
-          y = "SNP Counts") +
-      theme_few() # get rid of the grey background
-```
-**Figure 1**: N and S genes have more unique SNPs in the set of samples analyzed.
-
-
-```{r variants-by-percentage}
+```{r expected-v-observed-variants}
 # Create a plot that compares the number of SNPs found in each gene with the
-# expected number of SNPs if proportional to gene length
+# expected number of SNPs if equal rates of mutation across all genes
 # Create vector with percentages of gene length to total genome length
 total_genes_length <- sum(gene_table_lengths$length)
 unique_snps_per <- matrix(NA, 0, 3)
@@ -217,7 +232,7 @@ ggplot(unique_snps_per, aes(fill = expect_v_actual,
                             x = gene,
                             y = snp_values)) +
       geom_col(position = "dodge") +
-      labs(title = "Count of distinct SNPs in Named SARS-CoV-2 Genes",
+      labs(title = "Count of Distinct SNPs in Named SARS-CoV-2 Genes",
           x = "Gene Name",
           y = "SNP Values") +
   scale_fill_discrete(name = "Legend", labels = c("Expected counts",
@@ -230,23 +245,35 @@ ggplot(unique_snps_per, aes(fill = expect_v_actual,
 
 ```{r number-of-common-mutations}
 # Create a bar graph that shows the number of samples of this dataset with
-# mutations at the positions identified by Pachetti et al.
+# mutations at the positions identified by previous studies
 key_mutations_tallied <- stacked_vcfs %>%
-  subset(pos %in% key_mutations$mut_pos) %>%
+  subset(pos %in% key_mutations$mut_position) %>%
   group_by(pos) %>%
   tally()
 
-key_mutations_tallied$pos <- factor(key_mutations_tallied$pos, levels = key_mutations_tallied$pos)
+key_mutations_types <- key_mutations %>%
+  subset(mut_position %in% key_mutations_tallied$pos) %>%
+  group_by(mut_position) %>%
+  select(type)
 
-key_mutations_tallied %>%
+key_mutations_all <- merge(
+  key_mutations_tallied, key_mutations_types,
+  by.x = "pos",
+  by.y = "mut_position")
+
+key_mutations_all$pos <- factor(
+  key_mutations_all$pos, levels = key_mutations_all$pos)
+
+key_mutations_all %>%
   ggplot(aes(x = pos, y = n)) +
-    geom_col() +
-    labs(title = "Number of samples with specific mutation",
-         x = "Position number",
-         y = "Number of samples") +
+    geom_col(aes(fill = type)) +
+    labs(title = "Number of Samples with Common Mutations",
+         x = "Position Number",
+         y = "Number of Sequences",
+         fill = "Associated Strain") +
     scale_y_continuous(breaks = pretty_breaks())
 ```
-**Figure 4**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
+**Figure 3**: Number of samples from this specific Beijing data set with common mutations found in samples globally. ***Note:*** Positions 3036, 17746, and 26143, which were identified by Pachetti et al., were not identified in the analyses by van Dorp et al. Instead, adjacent position 3037, 17747, and 26144 were identified, with a relatively large number of isolates having the mutation with high quality reads, which have been included here.
 
 ```{r beijing-confirmed-cases}
 # Create a plot showing the number of confirmed cases over time
@@ -262,17 +289,20 @@ chn_epi_tab <- dplyr::filter(.data = epi_tab, countrycode == "CHN")
 beijing_epi_tab <- chn_epi_tab %>%
   filter(adm_area_1 == "Beijing")
 
-# Retrieve remote table data into R
-dplyr::collect(beijing_epi_tab)
-
 # Create plot of confirmed cases
 beijing_epi_tab %>%
   select(date, adm_area_1, confirmed) %>%
+  collect(beijing_epi_tab) %>%
   ggplot(aes(x = date,
              y = confirmed)) +
-  geom_line(color = "#00BFC4")
+  labs(x = "Date",
+       y = "Number of Confirmed Cases",
+       title = 
+         "Total Number of Confirmed Cases of COVID-19 in Beijing Over Time") +
+  geom_line(color = "#00BFC4") +
+  scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
 ```
-**Figure 5**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
+**Figure 4**: Total confirmed cases in Beijing over time, starting from January 20th, 2020.
 
 ```{r china-new-cases-daily}
 # Create a plot showing the number of daily new cases in China
@@ -285,21 +315,29 @@ chn_new_cases <- chn_ourworld_tab %>%
 ggplot(chn_new_cases, 
        aes(x = date, y = value, color = raw_v_smooth)) +
   geom_line() +
+  labs(x = "Date",
+       y = "Number of New Cases",
+       title = "Daily New Cases of COVID-19 in China per Day") +
   scale_color_discrete(labels = str_wrap(c("Daily New Cases", 
                                 "Daily New Cases (7-Day Smoothed)"), 
                                 width = 20)) +
+  scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
   theme(legend.title=element_blank())
 ```
-**Figure 6**: New daily confirmed cases over time in China. The red line represents the raw number of daily new cases whereas the blue line represents daily confirmed cases with 7-day smoothing.
+**Figure 5**: New daily confirmed cases over time in China. The red line represents the raw number of daily new cases whereas the blue line represents daily confirmed cases with 7-day smoothing.
 
 ``` {r reproduction-rate-over-time}
 # Create a plot that shows the effective reproduction rate over time in China
 chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = reproduction_rate)) +
-  geom_line(color = "#00BFC4")
+  geom_line(color = "#00BFC4") +
+  labs(x = "Date",
+       y = "Effective Reproduction Rate (R)",
+       title = "Effective Reproduction Rate (R) of SARS-CoV-2 in China") +
+  scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month")
 ```
-**Figure 7**: Effective reproduction rate of the SARS-CoV-2 virus in China over time.
+**Figure 6**: Effective reproduction rate of the SARS-CoV-2 virus in China over time. R indicates how many new infections one infected person causes on average. If R is below 1, the number of cases will gradually decrease whereas if it's greater than 1, cases will increase.
 
 ``` {r stringency-index-over-time}
 # Create a plot showing the stringency index, a measure of how stringent a
@@ -307,8 +345,13 @@ chn_ourworld_tab %>%
 chn_ourworld_tab %>%
   ggplot(aes(x = date,
              y = stringency_index)) +
-  geom_line(color = "#00BFC4")
+  geom_line(color = "#00BFC4") +
+  labs(x = "Date",
+       y = "Stringency Index",
+       title = "The Chinese Government's Response to the COVID-19 Pandemic") +
+  scale_x_date(breaks = waiver(), date_labels = "%b", date_breaks = "1 month") +
+  scale_y_continuous(limits = c(NA,100))
 ```
-**Figure 8**: The Chinese government's response to the pandemic measured by a stringency index over time. This index is based on 9 response indicators, including school and workplace closures, and is scaled from 0 to 100 with 100 being the strictest response [@owid2020].
+**Figure 7**: The Chinese government's response to the pandemic measured by a stringency index over time. This index is compositely based on 9 response indicators, including school and workplace closures, contact tracing, and face coverings, and is scaled from 0 to 100 with 100 being the strictest response [@owid2020].
 
 # Sources Cited
