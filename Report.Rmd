@@ -23,13 +23,13 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # Background and Overview
 
-In late 2019, the first cases of Severe Acute Respiratory Syndrome Coronavirus 2 caused by the SARS-CoV-2 virus were reported in Wuhan, China. Since then, the virus has spread rapidly around the world and has resulted in more than 1.4 million deaths worldwide as of November, 27th 2020 [@jhu2020].
+In late 2019, the first cases of coronavirus disease 19 (COVID-19) caused by the Severe Acute Respiratory Syndrome Coronavirus 2 (SARS-CoV-2) virus were reported in Wuhan, China in December 2019. Since then, the virus has spread rapidly around the world and has resulted in more than 1.4 million deaths worldwide as of November, 27th 2020 [@jhu2020]. Researchers around the globe have identified key mutations that are predominant in different locations, suggesting that the virus has been evolving over time to form location-specific strains [@pachetti2020]. Some have hypothesized that such mutations could cause evolutionary advantages, such as increased transmission rates [@korber2020]. 
 
-Researchers around the globe have identified key mutations that are predominant in different locations, indicating that the virus has been evolving over time to form location-specific strains. This report examined how the SARS-CoV-2 virus has mutated within and affected the population in Beijing, China. Beijing is approximately 717 miles (~1,153 km) from Wuhan, a city in Hubei province that was the center of the first known COVID-19 cases first reported in December 2019.
+The goal of this report was to identify mutations of the SARS-CoV-2 virus found in samples taken from positive patients in a Beijing hospital, compare them with known mutations identified by previous researchers, and analyze epidemiological data on China's response to the virus at a national level. I also examined government response data as how a country reacts to the pandemic can certainly affect transmission rates as well.
 
-The goal of this report was to identify mutations of the SARS-CoV-2 virus found in samples taken from positive patients in a Beijing hospital, compare them with known mutations identified by previous researchers, and analyze data on China's response to the virus at a national level. I used a pipeline written in bash to process the sequence data and identify variants from the reference Wuhan genome. I called out specifically variants at positions that are commonly found in samples around the world in order to examine how Beijing's strain may have mutated since the virus first emerged [@pachetti2020][@vanDorp2020].
+I used a pipeline written in bash to process the sequence data and identify variants from the reference Wuhan genome. Then, I used R scripts to tally commonly found variants, analyze epidemiological data such as total confirmed cases and effective reproduction rate, and understand the Chinese government's response to the pandemic over time.
 
-Previous studies showed that a mutation in the gene encoding the S spike protein has created a SARS-CoV-2 variant that has become the most prevalent form in many geographies, suggesting that this strain could have an evolutionary advantage [@korber2020]. While there has been no definitive understanding in how known mutations in the virus affect the virus' transmission or infection capacity, it is certainly an important area of study to understand how the virus will change over time, and in turn, how we may more effectively combat it. Analyses of this Beijing dataset show that there were no more S gene mutations than one would expect assuming equal rates of mutation across the genome. However, there are many other factors that can affect how a region copes with the ever-changing COVID-19 pandemic other than the potential outcomes of viral mutations, including population and government responses. I found that the number of cases across the country as a whole has reduced dramatically since spring of 2020, despite fluctuating effective reproduction rates, as the Chinese government has reacted quickly and strictly in response to spikes. 
+Previous studies showed that a mutation in the gene encoding the S spike protein has created a SARS-CoV-2 variant that has become the most prevalent form in many geographies, suggesting that this strain could have an evolutionary advantage [@korber2020]. While there is no definitive understanding of how known mutations affect the virus' transmission or infection capacity, it is certainly an important area of study to understand how the virus will change over time, and in turn, how we may more effectively combat it. Analyses of this Beijing dataset show that there were no more S gene mutations than one would expect assuming equal rates of mutation across the genome. However, there are many other factors that can affect how a region copes with the ever-changing COVID-19 pandemic other than the potential outcomes of viral mutations, including population and government responses. I found that the number of cases across the country as a whole has reduced dramatically since spring of 2020, despite fluctuating effective reproduction rates, as the Chinese government has reacted quickly and strictly in response to spikes. 
   
 \newpage  
   
@@ -64,12 +64,23 @@ All samples had either a sequence length of 150bp or 76bp. Given the uniform dis
 
 &nbsp;
   
+
+&nbsp;
+
 ## Data Processing
 
-I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped. Of the 102 sequences, 73 did not clear the Trimmomatic steps and I proceeded with 29 sequences.
+I used Trimmomatic on each downloaded `fastq` file to throw out bad sequences and trim areas of poor quality [@bolger2014trim]. For faster turnaround, I used TrimmomaticSE for single ends rather then using a paired end approach. For my parameters, I used 4 computing threads, converted quality scores to Phred-33, had a leading and trailing value of 5 bases, and a sliding window of size 8 with a minimum phred score of 25. Reads below a length of 100bp were dropped. Of the 102 sequences, 73 did not clear the Trimmomatic step due to having a length of 76bp and I proceeded with 29 sequences.
 
 I then aligned each read against the reference genome using the Burrows-Wheeler Aligner [@li2013bwa]. These aligned `bam` files were then converted to `sam` and then sorted using samtools [@li2009samtools]. I ran `bcftools mpileup` to determine read coverage of positions in the genome per base and then `bcftools call` to call the single nucleotide polymorphisms (SNPs) for each file. Finally, I filtered each file to remove short variants and retain only major variants. 
-  
+
+&nbsp;
+
+## R Analyses
+
+I used R scripts to tally observed variants in the sample set as well as to calculate expected SNP counts (Figure 2). Expected SNP counts were calculated by assuming equal rates of mutation across all the genes and using individual gene length proportional to the total length of all the identified genes combined.
+
+I used the `vcfR` package to load and clean up the vcf data [@knaus2017vcfr]. I conducted much of my R analyses using the `dplyr` package [@wickham2020dplyr]. Plots were created using `ggplot2` [@wickham2016ggplot2]. For the Beijing epidemiological data, I connected to an API that pulls data from Oxford's COVID-19 database [@guevarra2020oxcovid][@mahdi2020oxcovid]. For the nationwide epidemiological data for China, I used Our World in Data's COVID-19 dataset [@owid2020].
+
 \newpage
   
 # Results and Discussion
@@ -84,7 +95,7 @@ By mapping the variants to the gene locations as identified by the Wuhan referen
 
 Previous studies have identified positions at which mutations have been commonly found in samples taken around the world. Some have been found in specific geographic regions, suggesting regional strains with distinctive mutation patterns [@pachetti2020].
 
-One strain in particular has emerged in prominence around the world, usurping the previously dominant D614 strain. This increased prevalence arose at multiple geographic levels globally, suggesting that this variant confers an evolutionary advantage over the previously established strain and has been positively selected for. This variant has a change within the Spike protein encoding gene, changing amino acid D614 to G614 through a A-to-G mutation at position 23403. G614 variants almost always also have 3 other distinguishing mutations within coding regions: C14408T within the ORF1b gene that causes an amino acid change in RNA-dependent RNA polymerase (RdRp P323L), C3037T within ORF1a which is silent, and C241T in the 5' UTR [@korber2020][@yang2020][@vanDorp2020]. Table 2 shows these common mutations and which genes they're found in.
+One strain in particular has emerged in prominence around the world, usurping the previously predominant D614 strain. This increased prevalence arose at multiple geographic levels globally, suggesting that this variant confers an evolutionary advantage over the previously established strain and has been positively selected for. This variant has a change within the Spike protein encoding gene, changing amino acid D614 to G614 through a A-to-G mutation at position 23403. G614 variants almost always also have 3 other distinguishing mutations within coding regions: C14408T within the ORF1b gene that causes an amino acid change in RNA-dependent RNA polymerase (RdRp P323L), C3037T within ORF1a which is silent, and C241T in the 5' UTR [@korber2020][@yang2020][@vanDorp2020]. Table 2 shows these common mutations and which genes they're found in.
 
 I mapped the Beijing dataset's variants to these mutation positions and found that there were mutations characteristic of the D614G strain (Figure 3). Interestingly, the mutations characteristic of the D614G strain (241, 3037, 14408, and 23403) appeared with nearly the exact same frequency, with the exception being the mutation at 23403 having 6 occurrences rather than 5. This lends credence to the idea that these mutations occur in tandem and may serve as markers of the strain. That these have been found in samples from China also suggests that this variant may have become more prevalent despite the original strain of the Wuhan reference genome having already been previously established in the region. This is further supported by the work by Korber et al. examining the increased frequency of the D614G variant in Mainland China over time [@korber2020].
 
@@ -108,7 +119,6 @@ The Chinese government's response to the pandemic may help to partially explain 
 library("vcfR")
 library("ggplot2")
 library("dplyr")
-library("ggthemes")
 library("oxcovid19")
 library("tidyr")
 library("scales")
