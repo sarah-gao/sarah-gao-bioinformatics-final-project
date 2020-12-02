@@ -174,8 +174,8 @@ key_mutations <- rbind(common_mutations, d614g_mutations) %>%
   arrange(mut_position)
 
 # Match key mutations vector with genes table
-for (n in 1:nrow(key_mutations)) {
-  for (row in 1:nrow(gene_table)) {
+for (n in 1:seq_len(nrow(key_mutations))) {
+  for (row in 1:seq_len(nrow(gene_table))) {
     if (key_mutations$mut_position[n] >= gene_table$start[row] &
         key_mutations$mut_position[n] <= gene_table$end[row]) {
           key_mutations$gene_name[n] <- gene_table$gene_name[row]
