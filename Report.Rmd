@@ -45,12 +45,12 @@ I ran FastQC on each downloaded `fastq` file to get a summary of the quality of 
 
 &nbsp;
   
-![An example of one sample's per base sequence quality FastQC report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_base_seq_qual.png)
+![An example of one sample's per base sequence quality FastQC report](/data/images/SRR12768739_1_per_base_seq_qual.png)
 *An example of one sample's FastQC quality report showing per base sequence quality.*
   
 &nbsp;
 
-![An example of one sample's FastQC per sequence quality scores report](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_per_seq_qual.png)
+![An example of one sample's FastQC per sequence quality scores report](/data/images/SRR12768739_1_per_seq_qual.png)
 *The FastQC per sequence quality scores of the same sample.*
 
 &nbsp;
@@ -59,7 +59,7 @@ All samples had either a sequence length of 150bp or 76bp. Given the uniform dis
   
 &nbsp;
 
-![An example of one sample's FastQC sequence length distribution](/home/Gao_Sarah/sarah-gao-bioinformatics-final-project/data/images/SRR12768739_1_seq_length_distr.png)
+![An example of one sample's FastQC sequence length distribution](/data/images/SRR12768739_1_seq_length_distr.png)
 *The sequence length distribution report of the same sample.*
 
 &nbsp;
