@@ -43,7 +43,7 @@ do
     fi
 
     # Remove extraneous .fastq files without the "_1" forward read suffix
-    rm -vf ${OUTPUT_DIR}/${run_id}.fastq
+    rm -vf ${OUTPUT_DIR}/"${run_id}".fastq
 
     # Remove all reverse reads for speed purposes -- for a real analysis, probably
     # would want to keep these in here, and then would also want to adjust other
